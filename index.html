@@ -26917,9 +26917,9 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 </script>
 <script id="sg-doctor-js">
 (function(){ 'use strict'; try {
-  var pan = null, esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); };
+  var BUILD = 'b7', pan = null, esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); };
   var G = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
-  function report(){ var L = ['BOOT DOCTOR \u00b7 ' + new Date().toISOString().slice(0, 19) + ' \u00b7 ' + location.href.slice(0, 80)];
+  function report(){ var L = ['BOOT DOCTOR \u00b7 build ' + BUILD + ' \u00b7 ' + new Date().toISOString().slice(0, 19) + ' \u00b7 ' + location.href.slice(0, 80)];
     var S = G('S'), ov = document.getElementById('sg-ov'); L.push('state: ' + (S ? ('on=' + S.on + ' state=' + S.state) : 'S not reachable') + ' \u00b7 reach=' + (window.__sgReach || '?') + ' \u00b7 body=' + String(document.body.className).slice(0, 80));
     L.push('overlay: ' + (ov ? ('open=' + ov.classList.contains('open') + ' kids=' + ov.children.length + ' display=' + getComputedStyle(ov).display) : 'missing') + ' \u00b7 engine=' + (window.SGENG ? 'yes role=' + SGENG.role : 'NO') + ' \u00b7 cmds=' + (window.SGENG && SGENG.cmds ? Object.keys(SGENG.cmds).length : 0));
     L.push('spline bridge: ' + (window.spline ? 'present' : 'absent') + ' \u00b7 sky=' + (window.SGSKY ? 'yes' : 'no') + ' \u00b7 mp=' + (window.SGMP ? 'yes' : 'no') + ' \u00b7 world=' + (window.SGWORLD ? 'yes' : 'no') + ' \u00b7 acct=' + (window.SGACCT ? (SGACCT.user ? SGACCT.user.email : 'signed out') : 'no'));
@@ -26937,8 +26937,14 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
     pan.style.display = 'flex'; draw(); }
   function out(t){ var o = document.getElementById('sg-doc-out'); if (o) o.textContent = String(t == null ? '' : t); }
   function run(){ var i = document.getElementById('sg-doc-in'); if (!i) return; var c = i.value.trim().replace(/^\//, ''); if (!c) return; var r; try { r = window.SGENG ? SGENG.run(c) : 'engine missing'; } catch(x){ r = 'Error: ' + x; } out('/' + c + '\n' + (r == null || r === '' ? 'ok' : String(r))); i.value = ''; }
-  window.addEventListener('keydown', function(e){ if (e.altKey && e.code === 'KeyD'){ e.preventDefault(); if (pan && pan.style.display === 'flex') pan.style.display = 'none'; else open(); } }, true);
-  setTimeout(function(){ try { var S = G('S'), ov = document.getElementById('sg-ov'); var menuOk = !!(ov && ov.classList.contains('open') && ov.children.length); var playing = !!(S && S.on && S.state !== 'menu'); if (!menuOk && !playing) open(); } catch(e){ open(); } }, 7000);
+  var toggle = function(){ if (pan && pan.style.display === 'flex') pan.style.display = 'none'; else open(); };
+  window.addEventListener('keydown', function(e){ if (e.altKey && e.shiftKey && e.code === 'KeyD'){ e.preventDefault(); toggle(); } }, true);
+  var tag = document.createElement('div'); tag.id = 'sg-build'; tag.textContent = BUILD + ' \u00b7 doctor'; tag.title = 'Boot Doctor (Alt+Shift+D)'; tag.style.cssText = 'position:fixed;left:50%;top:2px;transform:translateX(-50%);z-index:2147482000;font:9px monospace;color:rgba(255,154,154,.75);cursor:pointer;padding:1px 6px;background:rgba(0,0,0,.35)'; document.body.appendChild(tag); tag.addEventListener('click', toggle);
+  var hudOk = function(){ var h = document.getElementById('sg-hud'); return !!(h && getComputedStyle(h).display !== 'none' && h.offsetWidth > 0); };
+  var menuOk = function(){ var ov = document.getElementById('sg-ov'); return !!(ov && ov.classList.contains('open') && ov.children.length); };
+  [7000, 13000].forEach(function(ms){ setTimeout(function(){ try { if (!menuOk() && !hudOk()) open(); } catch(e){ open(); } }, ms); });
+  if (/doctor/.test(location.search + location.hash)) setTimeout(open, 1500);
+  var scans = 0, sc = setInterval(function(){ try { if (++scans > 40 || document.getElementById('sg-doc-bt')){ if (scans > 40) clearInterval(sc); return; } var hit = null; document.querySelectorAll('body *').forEach(function(x){ if (!hit && x.children.length === 0 && /FORCE SHOW MENU/.test(x.textContent || '')) hit = x; }); if (!hit || !hit.parentNode) return; var b = document.createElement('div'); b.id = 'sg-doc-bt'; b.textContent = '\ud83e\ude7a BOOT DOCTOR'; b.style.cssText = 'display:inline-block;cursor:pointer;border:1px solid #ff9a9a;color:#ff9a9a;padding:2px 8px;margin:4px;font:700 11px Orbitron,sans-serif'; b.addEventListener('click', function(e){ e.stopPropagation(); open(); }); hit.parentNode.appendChild(b); clearInterval(sc); } catch(e){} }, 1000);
   window.SGDOC = { open:open, report:report };
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('doctor: ' + e); } })();
 </script>
