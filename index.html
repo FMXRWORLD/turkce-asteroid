@@ -26772,10 +26772,10 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   var done = function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error(r.status + ' ' + t.slice(0, 120)); }); return r.text().then(function(t){ try { return t ? JSON.parse(t) : {}; } catch(e){ return {}; } }); };
   var prev = null;
   var AD = {
-    push:function(scope, data, rev){ if (scope === 'content'){ var P = prev || (window.SGSYNC && SGSYNC.REST); if (!P) return Promise.reject(new Error('no content adapter')); return P.push(scope, data, rev); }
+    push:function(scope, data, rev){ if (scope === 'content'){ var tk = ''; try { tk = (JSON.parse(localStorage.getItem('sgsupa') || '{}') || {}).token || ''; } catch(e){} if (!tk && !A.admin) return Promise.reject(new Error('content push needs admin')); return tok().then(function(){ return fetch(A.url + '/rest/v1/rpc/set_content', { method:'POST', headers:A.hdr(), body:JSON.stringify({ p_token:tk, p_rev:rev | 0, p_data:data || {} }) }); }).then(done); }
       if (!A.user) return Promise.reject(new Error('not signed in'));
       return tok().then(function(){ return fetch(A.url + '/rest/v1/rpc/save_player', { method:'POST', headers:A.hdr(), body:JSON.stringify({ p_pid:A.pid(), p_rev:rev | 0, p_data:data || {} }) }); }).then(done); },
-    pull:function(scope){ if (scope === 'content'){ var P = prev || (window.SGSYNC && SGSYNC.REST); return P ? P.pull(scope) : Promise.resolve(null); }
+    pull:function(scope){ if (scope === 'content'){ return tok().then(function(){ return fetch(A.url + '/rest/v1/content?id=eq.1&select=rev,data,at', { headers:A.hdr() }); }).then(done).then(function(rows){ return (Array.isArray(rows) && rows[0]) ? rows[0] : null; }); }
       if (!A.user) return Promise.resolve(null);
       return tok().then(function(){ return fetch(A.url + '/rest/v1/players?pid=eq.' + encodeURIComponent(A.pid()) + '&select=rev,data,at', { headers:A.hdr() }); }).then(done).then(function(rows){ return (Array.isArray(rows) && rows[0]) ? rows[0] : null; }); },
     ping:function(){ return fetch(A.url + '/rest/v1/content?select=rev&id=eq.1', { headers:A.hdr() }).then(function(r){ return r.ok; }).catch(function(){ return false; }); }
@@ -26787,6 +26787,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   A.status = function(){ return A.user ? ('signed in as ' + A.user.email + (A.admin ? ' [admin]' : '') + ' \u00b7 id ' + A.pid().slice(0, 8) + '\u2026 \u00b7 cloud save ' + (window.SGSYNC && SGSYNC.C.on ? 'on' : 'off')) : 'not signed in \u2014 saves stay in this browser'; };
   function onAccount(){ if (A.user){ checkAdmin().then(function(){ arm(); try { SGENG.chat.sys('\ud83d\udc64 ' + A.status()); } catch(e){} }); } else disarm(); }
   var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd || !window.SGSYNC){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    try { var S0 = window.SGSYNC; if (S0 && S0.adapter !== AD){ prev = S0.adapter; S0.adapter = AD; if (!S0.C.url) S0.C.url = A.url; } } catch(e){}
     E.on('account', onAccount); if (A.ready) onAccount();
     E.cmd('account', { h:'account: /account | /account login you@mail.com | /account out', run:function(a){ a = Array.isArray(a) ? a : String(a || '').split(' '); var x = a[0];
       if (x === 'login'){ A.login(a[1]).then(function(m){ try { E.chat.sys('\ud83d\udc64 ' + m); } catch(e){} }); return 'Sending link\u2026'; }
@@ -26917,8 +26918,12 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 </script>
 <script id="sg-doctor-js">
 (function(){ 'use strict'; try {
-  var BUILD = 'b7', pan = null, esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); };
+  var BUILD = 'b8', TL = [], pan = null, esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); };
   var G = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
+  var t0 = performance.now(), mark = function(x){ if (TL.length < 60) TL.push(((performance.now() - t0)/1000).toFixed(1) + 's ' + x); };
+  var sample = function(){ try { var S = G('S'), ov = document.getElementById('sg-ov'), h = document.getElementById('sg-hud'); mark('state=' + (S ? S.on + '/' + S.state : '?') + ' overlay=' + (ov ? (ov.classList.contains('open') ? 'open' : 'closed') + '/' + ov.children.length : '-') + ' hud=' + (h && getComputedStyle(h).display !== 'none' && h.offsetWidth > 0 ? 'shown' : 'hidden') + ' body=' + String(document.body.className).slice(0, 40)); } catch(e){ mark('sample err ' + e); } };
+  [1000, 2000, 3000, 5000, 8000, 12000].forEach(function(ms){ setTimeout(sample, ms); });
+  var evTries = 0, evReg = setInterval(function(){ var E = window.SGENG; if (!E || !E.on){ if (++evTries > 60) clearInterval(evReg); return; } clearInterval(evReg); mark('engine ready'); ['account', 'sync:pulled', 'sync:pushed', 'run:start', 'system:load', 'role'].forEach(function(n){ try { E.on(n, function(d){ mark('event ' + n + ' ' + (d && typeof d === 'object' ? JSON.stringify(d).slice(0, 60) : String(d == null ? '' : d).slice(0, 60))); }); } catch(e){} }); }, 250);
   function report(){ var L = ['BOOT DOCTOR \u00b7 build ' + BUILD + ' \u00b7 ' + new Date().toISOString().slice(0, 19) + ' \u00b7 ' + location.href.slice(0, 80)];
     var S = G('S'), ov = document.getElementById('sg-ov'); L.push('state: ' + (S ? ('on=' + S.on + ' state=' + S.state) : 'S not reachable') + ' \u00b7 reach=' + (window.__sgReach || '?') + ' \u00b7 body=' + String(document.body.className).slice(0, 80));
     L.push('overlay: ' + (ov ? ('open=' + ov.classList.contains('open') + ' kids=' + ov.children.length + ' display=' + getComputedStyle(ov).display) : 'missing') + ' \u00b7 engine=' + (window.SGENG ? 'yes role=' + SGENG.role : 'NO') + ' \u00b7 cmds=' + (window.SGENG && SGENG.cmds ? Object.keys(SGENG.cmds).length : 0));
@@ -26927,6 +26932,9 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
     var E = (window.SGX && SGX.err) || []; L.push('engine errors (' + E.length + '):'); E.slice(-12).forEach(function(x){ L.push('  ' + String(x).slice(0, 160)); });
     try { var M = window.SGMENURX && SGMENURX.log; if (M && M.length){ L.push('menu rescue log:'); M.slice(-6).forEach(function(x){ L.push('  ' + x); }); } } catch(e){}
     try { var B = window.SGBOOT && SGBOOT.probe && SGBOOT.probe(); if (B && B.txt) L.push('boot probe: ' + String(B.txt).replace(/\s+/g, ' ').slice(0, 300)); } catch(e){}
+    L.push('timeline:'); TL.forEach(function(x){ L.push('  ' + x); });
+    try { var ks = []; for (var i = 0; i < localStorage.length; i++){ var k = localStorage.key(i); if (/^(sg_|sgsupa|tm_)/.test(k)) ks.push(k + ':' + (localStorage.getItem(k) || '').length); } L.push('storage (' + ks.length + '): ' + ks.sort().join(' ')); L.push('session: ' + Object.keys(sessionStorage).join(' ')); } catch(e){}
+    try { if (window.SGSYNC) L.push('sync: ' + SGSYNC.status()); } catch(e){}
     return L.join('\n'); }
   function draw(){ if (!pan) return; var pre = pan.querySelector('pre'); if (pre) pre.textContent = report(); }
   function open(){ if (!pan){ pan = document.createElement('div'); pan.id = 'sg-doc'; pan.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(680px,calc(100vw - 16px));max-height:calc(100vh - 24px);z-index:2147483000;display:flex;flex-direction:column;background:#080b0e;border:2px solid #ff9a9a;box-shadow:0 0 40px rgba(0,0,0,.85);color:#fff;font:12px "Share Tech Mono",Menlo,monospace';
@@ -26947,6 +26955,35 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   var scans = 0, sc = setInterval(function(){ try { if (++scans > 40 || document.getElementById('sg-doc-bt')){ if (scans > 40) clearInterval(sc); return; } var hit = null; document.querySelectorAll('body *').forEach(function(x){ if (!hit && x.children.length === 0 && /FORCE SHOW MENU/.test(x.textContent || '')) hit = x; }); if (!hit || !hit.parentNode) return; var b = document.createElement('div'); b.id = 'sg-doc-bt'; b.textContent = '\ud83e\ude7a BOOT DOCTOR'; b.style.cssText = 'display:inline-block;cursor:pointer;border:1px solid #ff9a9a;color:#ff9a9a;padding:2px 8px;margin:4px;font:700 11px Orbitron,sans-serif'; b.addEventListener('click', function(e){ e.stopPropagation(); open(); }); hit.parentNode.appendChild(b); clearInterval(sc); } catch(e){} }, 1000);
   window.SGDOC = { open:open, report:report };
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('doctor: ' + e); } })();
+</script>
+<script id="sg-uilocks-js">
+(function(){ 'use strict'; try {
+  var KEY = 'sg_unl2', U = {}; try { var d = JSON.parse(localStorage.getItem(KEY) || 'null'); if (d && typeof d === 'object') U = d; } catch(e){}
+  var save = function(){ try { localStorage.setItem(KEY, JSON.stringify(U)); } catch(e){} };
+  var G = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
+  var flags = function(){ try { return (G('Q') || {}).flags || {}; } catch(e){ return {}; } };
+  var sysId = function(){ try { var S = G('S'); return S && S.sys ? S.sys.id : ''; } catch(e){ return ''; } };
+  var room = function(){ try { return (G('INT') || {}).id || ''; } catch(e){ return ''; } };
+  // ===== EDIT ME: locked tools [id, button label regex, pause-hub regex, unlock test, Turkish toast, English toast] =====
+  var L = [
+    ['grammar', /D\u0130LB\u0130LG\u0130S\u0130|GRAMMAR/i, /D\u0130LB\u0130LG|GRAMMAR/i, function(){ try { if ((G('phrasebook') || []).length > 0) return true; } catch(e){} try { return (G('discoveredWords') || { size:0 }).size >= 8; } catch(e){ return false; } }, 'Dilbilgisi notlar\u0131 a\u00e7\u0131ld\u0131', 'Grammar notes unlocked \u2014 bottom toolbar'],
+    ['timeline', /\bZAMAN\b|TIMELINE/i, /\bZAMAN\b|TIMELINE|ZAMAN \u00c7\u0130ZELGES/i, function(){ return sysId() === 'famousturks' || !!flags().rift1 || !!flags().q_time; }, 'Zaman \u00e7izelgesi a\u00e7\u0131ld\u0131', 'Timeline unlocked \u2014 history is yours to explore'],
+    ['echoes', /YANKI|ECHO/i, /YANKI|ECHO/i, function(){ return room() === 'archive' || !!flags().echo1 || !!flags().q_sci; }, 'Yank\u0131lar a\u00e7\u0131ld\u0131', 'Echoes of the past unlocked'],
+    ['photo', /FOTO|PHOTO/i, /FOTO\u011eRAF|PHOTO MODE/i, function(){ return !!flags().cmd1; }, 'Foto\u011fraf modu a\u00e7\u0131ld\u0131', 'Photo mode unlocked \u2014 Shift+P']
+  ];
+  var st = document.createElement('style'); st.textContent = '#toolbar .btn.sg-ulock,#toolbar .btn[data-sub=PHOTO].sg-ulock,#sg-ov .sgp-g .sgp-b.sg-ulock,[id$="-fab"].sg-ulock{display:none!important}'; document.head.appendChild(st);
+  var note = function(tr, en){ try { var t = G('toast'); if (typeof t === 'function'){ t('<b>\ud83d\udd13 ' + tr + '</b> \u00b7 ' + en); return; } } catch(e){} try { SGENG.chat.sys('\ud83d\udd13 ' + tr + ' \u00b7 ' + en); } catch(e){} };
+  function tick(){ L.forEach(function(k){ var id = k[0]; if (!U[id]){ var ok = false; try { ok = !!k[3](); } catch(e){} if (ok){ U[id] = Date.now(); save(); note(k[4], k[5]); try { SGENG.emit('unlock:' + id, {}); } catch(e){} } }
+      var locked = !U[id];
+      try { document.querySelectorAll('#toolbar .btn').forEach(function(b){ if (k[1].test(b.textContent || '')) b.classList.toggle('sg-ulock', locked); }); } catch(e){}
+      try { document.querySelectorAll('#sg-ov .sgp-g .sgp-b').forEach(function(b){ if (b.dataset.hub || b.dataset.hubnav) return; if (k[2].test(b.textContent || '')) b.classList.toggle('sg-ulock', locked); }); } catch(e){}
+      if (id === 'grammar'){ var f = document.getElementById('grammar-fab'); if (f) f.classList.toggle('sg-ulock', locked); } }); }
+  setInterval(tick, 500);
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg); try { E.saves.register('progress and story', [KEY]); } catch(e){}
+    E.cmd('locks', { h:'tool locks: /locks | /locks unlock all|id | /locks reset', admin:true, run:function(a){ a = Array.isArray(a) ? a : String(a || '').split(' '); if (a[0] === 'unlock'){ L.forEach(function(k){ if (a[1] === 'all' || a[1] === k[0]) U[k[0]] = Date.now(); }); save(); return 'Unlocked ' + (a[1] || ''); } if (a[0] === 'reset'){ U = {}; save(); return 'All tools locked again.'; } return L.map(function(k){ return k[0] + ': ' + (U[k[0]] ? 'open' : 'locked'); }).join(' \u00b7 '); } });
+    if (window.SGCMDS && SGCMDS.NEW) SGCMDS.NEW.locks = 1; } catch(e){ clearInterval(reg); } }, 500);
+  window.SGUILOCKS = { U:U, L:L, tick:tick };
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('uilocks: ' + e); } })();
 </script>
 </body>'
 </html>
