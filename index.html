@@ -28350,7 +28350,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
       var wrap = function(obj){ if (!obj) return; var cur = obj.onmessage; if (typeof cur !== 'function' || cur.__bd) return; var w2 = function(e){ try { var raw = e && e.data; if (typeof raw === 'string' && raw.indexOf('"hello"') >= 0 && raw.indexOf('"bd"') >= 0){ var m = JSON.parse(raw); if (m && m.t === 'hello' && m.d && Array.isArray(m.d.bd)) B.peers[m.from] = { bd:m.d.bd.slice(0, 3).map(String), t:Date.now() }; } } catch(x){} return cur.apply(this, arguments); }; w2.__bd = 1; if (cur.__pl) w2.__pl = 1; obj.onmessage = w2; }; wrap(N.ch); wrap(N.ws); } catch(e){} }, 1000);
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('badges: ' + e); } })();
 </script>
-<script id="sg-badges2-js">
+<script id="sg-badges2-js" type="text/plain" data-retired="syntax error; replaced by sg-badges3-js">
 /*SG_BADGES (2/3): player side — 🏅 Rozetler panel (grid, progress, pick 3 for the showcase), showcase drawn above other pilots' name tags, hover a ship for their full set, /badges [name]*/
 (function(){ 'use strict'; try {
   var B = window.SGBADGES; if (!B) return; var esc = function(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); };
@@ -28436,7 +28436,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   window.SGSTUDY = { syncLearned:syncLearned, GAME:GAME };
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('study: ' + e); } })();
 </script>
-<script id="sg-wotd-js">
+<script id="sg-wotd-js" type="text/plain" data-retired="syntax error; replaced by sg-wotd2-js">
 /*SG_WOTD: Word of the Day from the DB (word_of_day). Admin adds/removes at runtime (/wotd or Manage → HABERLER). ★ focus: when any entry is focused, only focused entries are picked. Picks avoid the last 7 shown.*/
 (function(){ 'use strict'; try {
   var W = window.SGWOTD = { list:[], pick:null, recent:[], err:'' };
@@ -28643,7 +28643,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 (function(){ 'use strict'; try {
   var g = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
   setInterval(function(){ try { var S = g('S'), P = window.SGPARAMS; if (!S) return; var W = P ? P.get('world.width', 4800) : 4800, H = P ? P.get('world.height', 2200) : 2200; if (S.W !== W || S.H !== H){ S.W = W; S.H = H; if (window.SGWORLDSIZE) SGWORLDSIZE.fixes = (SGWORLDSIZE.fixes || 0) + 1; } } catch(e){} }, 400);
-  setTimeout(function(){ try { var V = window.SGVER; if (V && V.build < 23){ V.v = '0.2.6'; V.build = 23; var el = document.getElementById('sg-build'); if (el) el.textContent = 'Alpha v0.2.6 \u00b7 b23'; } } catch(e){} }, 1500);
+  setTimeout(function(){ try { var V = window.SGVER; if (V && V.build < 24){ V.v = '0.2.7'; V.build = 24; var el = document.getElementById('sg-build'); if (el) el.textContent = 'Alpha v0.2.7 \u00b7 b24'; } } catch(e){} }, 1500);
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('worldsize2: ' + e); } })();
 </script>
 <script id="sg-guard-js">
@@ -28924,6 +28924,103 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   var tries = 0, reg = setInterval(function(){ try { var ov = document.getElementById('sg-ov'); if (!ov){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg); new MutationObserver(function(){ if (!pend) pend = requestAnimationFrame(sort); }).observe(ov, { childList:true, subtree:true }); } catch(e){ clearInterval(reg); } }, 500);
   setInterval(function(){ try { var S = g('S'); if (!S || S.state !== 'pause') return; var un = document.querySelectorAll('#sg-ov .sgp-g .sgp-b:not([data-hub]):not([data-hub-of])'); if (un.length){ if (window.SGPHUB && SGPHUB.apply) SGPHUB.apply(); else un.forEach(function(b){ b.dataset.hubOf = 'keep'; }); } } catch(e){} }, 300);
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('study2: ' + e); } })();
+</script>
+<script id="sg-resizegate-js">
+/*SG_RESIZEGATE: synthetic resize events only pass when the board's size actually changed (several sizers dispatched them in a loop → the world re-sized to 2.3×board, camera re-snapped, scene flickered behind the pause menu). Real window resizes always pass.*/
+(function(){ 'use strict'; try {
+  var lastB = '', lastW = innerWidth + 'x' + innerHeight, swallowed = 0, passed = 0;
+  var od = window.dispatchEvent;
+  window.dispatchEvent = function(ev){ try { if (ev && ev.type === 'resize' && !ev.isTrusted){ var b = document.getElementById('board'), bs = b ? (b.clientWidth + 'x' + b.clientHeight) : '', ws = innerWidth + 'x' + innerHeight; if (bs === lastB && ws === lastW){ swallowed++; return true; } lastB = bs; lastW = ws; passed++; } } catch(e){} return od.call(this, ev); };
+  window.addEventListener('resize', function(ev){ if (ev.isTrusted){ lastW = innerWidth + 'x' + innerHeight; var b = document.getElementById('board'); lastB = b ? (b.clientWidth + 'x' + b.clientHeight) : ''; } }, true);
+  window.SGRESIZEGATE = { stats:function(){ return 'synthetic resize: passed ' + passed + ' \u00b7 swallowed ' + swallowed; } };
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('resizegate: ' + e); } })();
+</script>
+<script id="sg-pausefreeze-js">
+/*SG_PAUSEFREEZE: while paused, the field is a frozen, dimmed snapshot (no comets/stars redrawing behind the menu). Hub buttons never show a changing count (the · N ticked as late buttons were sorted in → Hikaye & Dünya flickered).*/
+(function(){ 'use strict'; try {
+  var g = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
+  var snap = null;
+  function freeze(){ var b = document.getElementById('board'); if (!b) return; if (!snap){ snap = document.createElement('canvas'); snap.id = 'sg-pausesnap'; snap.style.cssText = 'position:absolute;left:0;top:0;z-index:7;pointer-events:none;filter:brightness(.55) saturate(.7)'; b.appendChild(snap); } var W = b.clientWidth, H = b.clientHeight, d = Math.min(2, devicePixelRatio || 1); if (!W || !H) return; snap.width = Math.round(W*d); snap.height = Math.round(H*d); snap.style.width = W + 'px'; snap.style.height = H + 'px'; var c = snap.getContext('2d'); c.setTransform(d, 0, 0, d, 0, 0); c.fillStyle = '#05070d'; c.fillRect(0, 0, W, H); var br = b.getBoundingClientRect(); Array.prototype.forEach.call(b.querySelectorAll('canvas'), function(cv){ if (cv === snap) return; var r = cv.getBoundingClientRect(); if (r.width < 10 || r.height < 10 || getComputedStyle(cv).display === 'none') return; try { c.drawImage(cv, r.left - br.left, r.top - br.top, r.width, r.height); } catch(e){} }); snap.style.display = 'block'; }
+  function thaw(){ if (snap){ snap.style.display = 'none'; snap.width = 1; snap.height = 1; } }
+  var frozen = false; setInterval(function(){ try { var S = g('S'), INT = g('INT'); var want = !!(S && S.on && S.state === 'pause' && !(INT && INT.id)); if (want && !frozen){ freeze(); frozen = true; } else if (!want && frozen){ thaw(); frozen = false; } } catch(e){} }, 120);
+  try { var desc = Object.getOwnPropertyDescriptor(Element.prototype, 'innerHTML'); if (desc && desc.set && !desc.set.__hub){ var oset = desc.set; var nset = function(v){ try { if (this.classList && this.classList.contains('sgp-b') && this.dataset && this.dataset.hub && typeof v === 'string') v = v.replace(/\s\u00b7\s\d+<\/small>/, '</small>'); } catch(e){} return oset.call(this, v); }; nset.__hub = 1; Object.defineProperty(Element.prototype, 'innerHTML', { get:desc.get, set:nset, configurable:true, enumerable:desc.enumerable }); } } catch(e){}
+  window.SGPAUSEFREEZE = { freeze:freeze, thaw:thaw };
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('pausefreeze: ' + e); } })();
+</script>
+<script id="sg-erow2-js">
+/*SG_EROW2: the red Boot Doctor button is gone; 🩺 Doctor and ⚙ Engine Map live in the admin engine row (bottom-left) with the other tools*/
+(function(){ 'use strict'; try {
+  var st = document.createElement('style'); st.textContent = '#sg-doc-bt,#em-fab{display:none!important}'; document.head.appendChild(st);
+  function openDoc(){ try { var D = window.SGDOC || window.SGDOCTOR || window.SGBOOTDOC; if (D && typeof D.open === 'function'){ D.open(); return; } if (D && typeof D.toggle === 'function'){ D.toggle(); return; } } catch(e){} var b = document.getElementById('sg-doc-bt'); if (b){ b.click(); return; } try { document.dispatchEvent(new KeyboardEvent('keydown', { code:'KeyD', key:'D', altKey:true, shiftKey:true, bubbles:true })); } catch(e){} }
+  function openEM(){ try { var M = window.SGEM || window.SGENGINEMAP; if (M && typeof M.open === 'function'){ M.open(); return; } if (M && typeof M.toggle === 'function'){ M.toggle(); return; } } catch(e){} var f = document.getElementById('em-fab'); if (f){ f.click(); return; } try { document.dispatchEvent(new KeyboardEvent('keydown', { code:'KeyM', key:'M', altKey:true, bubbles:true })); } catch(e){} }
+  var tries = 0, reg = setInterval(function(){ try { var R = window.SGEROW; if (!R || typeof R.add !== 'function'){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg); R.add('\ud83e\ude7a', 'Boot Doctor \u00b7 diagnostics (Alt+Shift+D)', openDoc); R.add('\u2699', 'Engine Map \u00b7 scripts, search, slice (Alt+M)', openEM); } catch(e){ clearInterval(reg); } }, 500);
+  setTimeout(function(){ try { if (!window.SGEROW || typeof SGEROW.add !== 'function'){ var row = document.getElementById('sg-erow'); if (!row) return; [['\ud83e\ude7a', 'Boot Doctor', openDoc], ['\u2699', 'Engine Map', openEM]].forEach(function(q){ var b = document.createElement('div'); b.textContent = q[0]; b.title = q[1]; b.style.cssText = 'cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;font-size:18px'; b.addEventListener('click', q[2]); row.appendChild(b); }); } } catch(e){} }, 9000);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('erow2: ' + e); } })();
+</script>
+<script id="sg-wotd2-js">
+/*SG_WOTD2 (replaces the broken sg-wotd-js): Word of the Day from the word_of_day table — ⭐ focus marker (if any row is focused, only focused rows are picked), no repeat of the last 7, same pick all day; /wotd admin commands; built-in list as fallback.*/
+(function(){ 'use strict'; try {
+  var FALL = [['Merhaba!', 'Hello!'], ['Te\u015fekk\u00fcr ederim.', 'Thank you.'], ['Nas\u0131ls\u0131n?', 'How are you?'], ['Bir \u00e7ay, l\u00fctfen.', 'One tea, please.'], ['G\u00fcle g\u00fcle!', 'Goodbye!'], ['Afiyet olsun!', 'Enjoy your meal!'], ['G\u00fcnayd\u0131n!', 'Good morning!'], ['\u00c7ok g\u00fczel!', 'Very beautiful!']];
+  var KEY = 'sg_wotd', D = { rows:[], at:0, recent:[], pick:null, day:'' }; try { var d0 = JSON.parse(localStorage.getItem(KEY) || 'null'); if (d0 && typeof d0 === 'object'){ D.recent = Array.isArray(d0.recent) ? d0.recent.slice(-7) : []; D.pick = d0.pick || null; D.day = d0.day || ''; D.rows = Array.isArray(d0.rows) ? d0.rows : []; } } catch(e){}
+  var save = function(){ try { localStorage.setItem(KEY, JSON.stringify({ recent:D.recent, pick:D.pick, day:D.day, rows:D.rows })); } catch(e){} };
+  var cfg = function(){ var N = window.SGNET; var url = (N && N.url && N.url()) || '', key = (N && N.key && N.key()) || '', jwt = (N && N.jwt && N.jwt()) || ''; if (!url){ try { var s = JSON.parse(localStorage.getItem('sgsupa') || '{}'); url = s.url || ''; key = key || s.key || ''; } catch(e){} } return { url:String(url).replace(/\/+$/, ''), key:key, jwt:jwt }; };
+  var rest = function(path, opt){ var c = cfg(); if (!c.url || !c.key) return Promise.reject('no supabase'); var h = { apikey:c.key, Authorization:'Bearer ' + (c.jwt || c.key), 'Content-Type':'application/json', Prefer:'return=representation' }; opt = opt || {}; return fetch(c.url + '/rest/v1/' + path, { method:opt.method || 'GET', headers:h, body:opt.body ? JSON.stringify(opt.body) : undefined }).then(function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error(r.status + ' ' + t.slice(0, 120)); }); return r.status === 204 ? null : r.json(); }); };
+  var today = function(){ return new Date().toISOString().slice(0, 10); };
+  function choose(){ var day = today(); if (D.pick && D.day === day) return D.pick; var pool = (D.rows.length ? D.rows : FALL.map(function(f, i){ return { id:-1 - i, tr:f[0], en:f[1], focus:false, active:true }; })).filter(function(r){ return r.active !== false; }); var foc = pool.filter(function(r){ return r.focus; }); if (foc.length) pool = foc; var fresh = pool.filter(function(r){ return D.recent.indexOf(r.tr) < 0; }); if (fresh.length) pool = fresh; if (!pool.length) return D.pick; var h = 0, s = day; for (var i = 0; i < s.length; i++) h = (h*31 + s.charCodeAt(i)) >>> 0; var r = pool[h % pool.length]; D.pick = { tr:r.tr, en:r.en, focus:!!r.focus }; D.day = day; D.recent.push(r.tr); D.recent = D.recent.slice(-7); save(); return D.pick; }
+  function load(){ return rest('word_of_day?select=id,tr,en,focus,active&order=id.asc').then(function(rows){ if (Array.isArray(rows)){ D.rows = rows; D.at = Date.now(); save(); } }).catch(function(){}); }
+  function patchMenu(){ try { var p = choose(); if (!p) return; var cards = document.querySelectorAll('.mn-tip'); cards.forEach(function(el){ if (el.dataset.wotd === p.tr) return; el.dataset.wotd = p.tr; el.innerHTML = 'BUG\u00dcN\u00dcN S\u00d6Z\u00dc \u00b7 word of the day: ' + (p.focus ? '\u2b50 ' : '') + '<b style="color:#fff">' + esc(p.tr) + '</b> <i>' + esc(p.en) + '</i>'; }); } catch(e){} }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+  load(); setInterval(load, 600000); setInterval(patchMenu, 700);
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('wotd', { h:'word of the day: /wotd | list | add "TR" "EN" [focus] | del <id> | focus <id> on|off | seed | next', admin:true, run:function(a){ var s = Array.isArray(a) ? a.join(' ') : String(a || ''); var x = s.split(' ')[0]; var q = s.match(/"([^"]*)"/g) || [];
+      if (x === 'list') return (D.rows.length ? D.rows.map(function(r){ return '#' + r.id + ' ' + (r.focus ? '\u2b50 ' : '') + (r.active === false ? '(off) ' : '') + r.tr + ' \u00b7 ' + r.en; }).join('\n') : 'table empty \u2014 using ' + FALL.length + ' built-ins; /wotd seed');
+      if (x === 'add'){ if (q.length < 2) return 'Usage: /wotd add "T\u00fcrk\u00e7e" "English" [focus]'; var row = { tr:q[0].slice(1, -1), en:q[1].slice(1, -1), focus:/focus$/i.test(s.trim()), active:true }; rest('word_of_day', { method:'POST', body:row }).then(function(){ load(); try { E.chat.sys('\ud83d\udcc5 added: ' + row.tr); } catch(e){} }, function(e){ try { E.chat.sys('wotd: ' + e.message); } catch(x2){} }); return 'Saving\u2026'; }
+      if (x === 'del'){ var id = parseInt(s.split(' ')[1], 10); if (!isFinite(id)) return 'Usage: /wotd del <id>'; rest('word_of_day?id=eq.' + id, { method:'DELETE' }).then(function(){ load(); try { E.chat.sys('\ud83d\udcc5 deleted #' + id); } catch(e){} }, function(e){ try { E.chat.sys('wotd: ' + e.message); } catch(x2){} }); return 'Deleting\u2026'; }
+      if (x === 'focus'){ var p = s.split(' '), fid = parseInt(p[1], 10), on = p[2] !== 'off'; if (!isFinite(fid)) return 'Usage: /wotd focus <id> on|off'; rest('word_of_day?id=eq.' + fid, { method:'PATCH', body:{ focus:on } }).then(function(){ load(); try { E.chat.sys('\ud83d\udcc5 #' + fid + ' focus ' + (on ? 'on' : 'off')); } catch(e){} }, function(e){ try { E.chat.sys('wotd: ' + e.message); } catch(x2){} }); return 'Saving\u2026'; }
+      if (x === 'seed'){ var have = {}; D.rows.forEach(function(r){ have[r.tr] = 1; }); var add = FALL.filter(function(f){ return !have[f[0]]; }).map(function(f){ return { tr:f[0], en:f[1], focus:false, active:true }; }); if (!add.length) return 'All built-ins are already in the table.'; rest('word_of_day', { method:'POST', body:add }).then(function(){ load(); try { E.chat.sys('\ud83d\udcc5 seeded ' + add.length + ' words'); } catch(e){} }, function(e){ try { E.chat.sys('wotd: ' + e.message); } catch(x2){} }); return 'Seeding ' + add.length + '\u2026'; }
+      if (x === 'next'){ D.pick = null; D.day = ''; save(); var n = choose(); return 'Re-rolled: ' + (n ? n.tr + ' \u00b7 ' + n.en : 'nothing'); }
+      var cur = choose(); return 'today: ' + (cur ? (cur.focus ? '\u2b50 ' : '') + cur.tr + ' \u00b7 ' + cur.en : 'none') + ' \u00b7 rows ' + D.rows.length + ' (' + D.rows.filter(function(r){ return r.focus; }).length + ' focused) \u00b7 recent ' + D.recent.length + ' \u00b7 source ' + (D.rows.length ? 'database' : 'built-in'); } });
+    if (window.SGCMDS && SGCMDS.NEW) SGCMDS.NEW.wotd = 1; try { E.saves.register('settings and engine', [KEY]); } catch(e){}
+  } catch(e){ clearInterval(reg); } }, 500);
+  window.SGWOTD = { D:D, choose:choose, load:load, FALL:FALL };
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('wotd2: ' + e); } })();
+</script>
+<script id="sg-badges3-js">
+/*SG_BADGES3 (replaces the broken sg-badges2-js): 32 more badges → 50. Written to the badges table (ignore-duplicates, so your edits stay) and merged into the live defaults, copying the requirement/reward shape from an existing badge so the checker reads them.*/
+(function(){ 'use strict'; try {
+  // [id, emoji, TR, EN, desc EN, [[kind, value], ...], dust, score, secret?]
+  var MORE = [
+    ['w25', '\ud83c\udf3f', 'Filiz', 'Sprout', 'Learn 25 words', [['words', 25]], 15, 200], ['w50', '\ud83c\udf3b', 'Ay\u00e7i\u00e7e\u011fi', 'Sunflower', 'Learn 50 words', [['words', 50]], 20, 300], ['w250', '\ud83c\udf33', 'Ulu A\u011fa\u00e7', 'Great Tree', 'Learn 250 words', [['words', 250]], 40, 800], ['w700', '\ud83c\udfdb\ufe0f', 'K\u00fct\u00fcphaneci', 'Librarian', 'Learn 700 words', [['words', 700]], 80, 2000], ['w1000', '\ud83c\udf0c', 'Galaksi Bilgesi', 'Galaxy Sage', 'Learn 1000 words', [['words', 1000]], 150, 5000],
+    ['p5', '\ud83d\udd17', '\u0130lk Ba\u011f', 'First Link', 'Build 5 phrases', [['phrases', 5]], 10, 150], ['p60', '\ud83c\udfd7\ufe0f', 'Mimar', 'Architect', 'Build 60 phrases', [['phrases', 60]], 40, 800], ['p150', '\ud83c\udfdb\ufe0f', 'C\u00fcmle Ustas\u0131', 'Sentence Master', 'Build 150 phrases', [['phrases', 150]], 80, 2000],
+    ['l5', '\ud83d\udd30', '\u00c7aylak Pilot', 'Rookie Pilot', 'Reach level 5', [['level', 5]], 10, 200], ['l15', '\ud83c\udf96\ufe0f', 'K\u0131demli Pilot', 'Veteran Pilot', 'Reach level 15', [['level', 15]], 40, 800], ['l30', '\ud83c\udfc6', 'Efsane Pilot', 'Legendary Pilot', 'Reach level 30', [['level', 30]], 100, 3000],
+    ['r2', '\ud83e\udd49', 'Te\u011fmen', 'Lieutenant', 'Reach rank 2', [['rank', 2]], 20, 400], ['r7', '\ud83e\udd47', 'Amiral', 'Admiral', 'Reach the top rank', [['rank', 7]], 150, 5000],
+    ['s3', '\ud83d\uddfa\ufe0f', 'Gezgin', 'Wanderer', 'Visit 3 star systems', [['systems', 3]], 10, 200], ['s16', '\ud83e\ude90', 'Haritac\u0131', 'Cartographer', 'Visit every star system', [['systems', 16]], 80, 2000],
+    ['k100', '\ud83d\udca5', 'Top\u00e7u', 'Artillery', 'Destroy 100 words', [['kills', 100]], 15, 300], ['k2000', '\u2604\ufe0f', 'Kuyruklu Y\u0131ld\u0131z', 'Comet', 'Destroy 2000 words', [['kills', 2000]], 80, 2000],
+    ['pu50', '\ud83e\uddf2', 'M\u0131knat\u0131s', 'Magnet', 'Pull 50 words aboard', [['pulls', 50]], 15, 300], ['pu300', '\ud83c\udf00', 'Girdap', 'Vortex', 'Pull 300 words aboard', [['pulls', 300]], 60, 1500],
+    ['t5', '\ud83d\udc4b', 'Selamc\u0131', 'Greeter', 'Finish 5 conversations', [['talks', 5]], 10, 200], ['t100', '\ud83c\udf99\ufe0f', 'Hatip', 'Orator', 'Finish 100 conversations', [['talks', 100]], 80, 2000],
+    ['q25', '\ud83e\udde0', 'Bilgi\u00e7', 'Know-it-all', 'Answer 25 quiz questions', [['quiz', 25]], 15, 300], ['q200', '\ud83c\udf93', 'Profes\u00f6r', 'Professor', 'Answer 200 quiz questions', [['quiz', 200]], 80, 2000],
+    ['d1', '\ud83e\udd3a', '\u0130lk D\u00fcello', 'First Duel', 'Finish a duel', [['duels', 1]], 10, 200], ['d25', '\ud83c\udfc5', 'D\u00fcello Ustas\u0131', 'Duel Master', 'Finish 25 duels', [['duels', 25]], 60, 1500],
+    ['a10', '\ud83d\udee1\ufe0f', 'Glad\u00fcat\u00f6r', 'Gladiator', 'Score 10 arena downs', [['arena', 10]], 40, 800],
+    ['e5', '\ud83d\udd0a', 'Dinleyici', 'Listener', 'Collect 5 echoes of the past', [['echoes', 5]], 15, 300], ['e20', '\ud83d\udcdc', 'Ar\u015fivci', 'Archivist', 'Collect 20 echoes', [['echoes', 20]], 60, 1500],
+    ['g1', '\ud83d\udc8e', '\u0130lk Bur\u00e7', 'First Sign', 'Collect a sign gem', [['gems', 1]], 15, 300],
+    ['day30', '\ud83c\udf19', 'Ay Yolcusu', 'Moon Traveller', 'Play on 30 different days', [['days', 30]], 100, 3000],
+    ['best3000', '\ud83d\ude80', 'Rekor U\u00e7u\u015f', 'Record Flight', 'Score 3000 in one flight', [['best', 3000]], 40, 800],
+    ['allround', '\ud83c\udf1f', 'Her \u015eeyin Ustas\u0131', 'All-Rounder', '100 words, 20 phrases, 10 talks and 3 systems', [['words', 100], ['phrases', 20], ['talks', 10], ['systems', 3]], 60, 1500]
+  ];
+  var B = null, ex = null;
+  function shapeReq(kind, val){ if (!ex || !Array.isArray(ex.req) || !ex.req.length || typeof ex.req[0] !== 'object'){ return { kind:kind, n:val }; } var r = ex.req[0], o = {}; Object.keys(r).forEach(function(k){ var v = r[k]; if (/^(k|kind|type|t)$/.test(k)) o[k] = kind; else if (typeof v === 'number') o[k] = val; else if (/^(v|val|value|n|goal|min)$/.test(k)) o[k] = val; else o[k] = v; }); return o; }
+  function shapeRew(dust, score){ var o = {}; if (ex && ex.rew && typeof ex.rew === 'object'){ Object.keys(ex.rew).forEach(function(k){ if (/dust|d$/.test(k)) o[k] = dust; else if (/score|s$/.test(k)) o[k] = score; }); } if (!Object.keys(o).length){ o.dust = dust; o.score = score; } return o; }
+  function build(m){ var b = ex ? JSON.parse(JSON.stringify(ex)) : {}; b.id = m[0]; b.emoji = m[1]; b.tr = m[2]; b.en = m[3]; b.dtr = ''; b.den = m[4]; b.req = m[5].map(function(q){ return shapeReq(q[0], q[1]); }); b.rew = shapeRew(m[6], m[7]); b.secret = !!m[8]; b.manual = false; b.active = true; b.sort = 100 + MORE.indexOf(m); ['at', 'earned', 'got', 'updated_at'].forEach(function(k){ delete b[k]; }); return b; }
+  function defs(){ if (!B) return null; var L = B.DEF || B.DEFAULTS || B.defs || B.LIST || B.ALL; if (Array.isArray(L)) return L; for (var k in B){ if (Array.isArray(B[k]) && B[k].length > 5 && B[k][0] && B[k][0].emoji) return B[k]; } return null; }
+  function local(){ var L = defs(); if (!L) return 0; var have = {}; L.forEach(function(b){ have[b.id] = 1; }); var n = 0; MORE.forEach(function(m){ if (!have[m[0]]){ L.push(build(m)); n++; } }); try { if (B.refresh) B.refresh(); else if (B.check) B.check(); } catch(e){} return n; }
+  var cfg = function(){ var N = window.SGNET; var url = (N && N.url && N.url()) || '', key = (N && N.key && N.key()) || '', jwt = (N && N.jwt && N.jwt()) || ''; if (!url){ try { var s = JSON.parse(localStorage.getItem('sgsupa') || '{}'); url = s.url || ''; key = key || s.key || ''; } catch(e){} } return { url:String(url).replace(/\/+$/, ''), key:key, jwt:jwt }; };
+  function seedDb(){ var c = cfg(); if (!c.url || !c.key || !c.jwt) return Promise.reject('sign in as admin'); var rows = MORE.map(function(m){ var b = build(m); return { id:b.id, emoji:b.emoji, tr:b.tr, en:b.en, dtr:b.dtr, den:b.den, req:b.req, rew:b.rew, secret:b.secret, manual:false, active:true, sort:b.sort }; }); return fetch(c.url + '/rest/v1/badges?on_conflict=id', { method:'POST', headers:{ apikey:c.key, Authorization:'Bearer ' + c.jwt, 'Content-Type':'application/json', Prefer:'resolution=ignore-duplicates,return=minimal' }, body:JSON.stringify(rows) }).then(function(r){ if (!r.ok) return r.text().then(function(t){ throw new Error(r.status + ' ' + t.slice(0, 100)); }); return rows.length; }); }
+  var tries = 0, reg = setInterval(function(){ try { B = window.SGBADGES; var E = window.SGENG; if (!B || !E || !E.cmd){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg); var L = defs(); ex = L && L[0] ? L[0] : null; var n = local();
+    E.cmd('badges3', { h:'the 32 extra badges: /badges3 | seed (write them to the database)', admin:true, run:function(a){ var x = Array.isArray(a) ? a[0] : a; if (x === 'seed'){ seedDb().then(function(k){ try { E.chat.sys('\ud83c\udfc5 ' + k + ' badges written (existing rows untouched)'); } catch(e){} }, function(e){ try { E.chat.sys('badges3: ' + (e && e.message || e)); } catch(x2){} }); return 'Writing\u2026'; } var D = defs(); return 'defaults now ' + (D ? D.length : '?') + ' badges \u00b7 ' + n + ' added locally this load \u00b7 shape from ' + (ex ? ex.id : 'none') + ' \u00b7 req sample ' + JSON.stringify(build(MORE[0]).req[0]); } }); if (window.SGCMDS && SGCMDS.NEW) SGCMDS.NEW.badges3 = 1;
+    try { if (!localStorage.getItem('sg_badges3_seeded')){ setTimeout(function(){ seedDb().then(function(){ try { localStorage.setItem('sg_badges3_seeded', '1'); } catch(e){} }, function(){}); }, 6000); } } catch(e){}
+  } catch(e){ clearInterval(reg); } }, 500);
+  window.SGBADGES3 = { MORE:MORE, build:build, seedDb:seedDb };
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('badges3: ' + e); } })();
 </script>
 <!-- EM:END -->
 <script type="text/plain" id="sg-paintlocks-tail">
