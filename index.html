@@ -13955,21 +13955,22 @@ function showWord(i,quiet){
   /*SG141B_PREPX: the four launch-prep lines become live buttons */
   { const PX = { comp:0, eng:-1, map:-1, mapT:0, look:0 }, PXT = { lpl1:null, lpl2:null };
     const COMP = [['Hava basıncı', 'cabin pressure'], ['Oksijen', 'oxygen'], ['Isı kalkanı', 'heat shield'], ['Yaşam desteği', 'life support'], ['Kalkan üreteci', 'shield generator'], ['İletişim', 'comms'], ['Yakıt hattı', 'fuel line'], ['Navigasyon', 'navigation']];
-    const pxSay = (tr, en) => { try { pgSay(tr, en, 500, 290); } catch(e){} };
+    const PO = PREP.map(p => [p[1], p[2]]); const pxSay = (tr, en, li) => { const i = li == null ? PX.li : li; if (PREP[i]){ PREP[i][1] = tr; PREP[i][2] = en; } };
     const pxLook = () => { const L = []; try { const b = BODIES.find(x => x[0] === (LOOK.b || 'dart')); if (b) L.push(['Gövde: ' + b[1], 'hull: ' + b[2]]); } catch(e){}
       try { const w = LOOK.wg && WGS.find(x => x[0] === LOOK.wg); L.push(w ? ['Kanatlar: ' + w[1], 'wings: ' + w[2]] : ['Kanat yok', 'no wings fitted']); } catch(e){}
       try { const n = (LOOK.a || []).length; L.push([n ? 'Ekstralar: ' + n + ' parça takılı' : 'Ekstra yok', n ? 'extras: ' + n + ' fitted' : 'no extras fitted']); } catch(e){}
       try { const t = THS.find(x => x[0] === (LOOK.ts || 'flame')); if (t) L.push(['İtici: ' + t[1], 'thruster: ' + t[2]]); } catch(e){}
       L.push(['Kapılar kilitli, mürettebat hazır', 'doors sealed, crew ready']); return L; };
-    const pxClick = (id) => () => { try { sgTone(720, { type:'square', dur:.06, vol:.06 }); } catch(e){}
+    const pxClick = (id) => () => { PX.li = +id.slice(3); try { sgTone(720, { type:'square', dur:.06, vol:.06 }); } catch(e){}
       if (id === 'lpl0'){ const c = COMP[PX.comp++ % COMP.length]; pxSay(c[0] + ' … tamam', c[1] + ' ... OK'); return; }
-      if (id === 'lpl1'){ if (PX.eng >= 100){ pxSay('Motorlar hazır', 'engines ready'); return; } if (PXT.lpl1) return; PX.eng = Math.max(0, PX.eng); const step = () => { if (!INT.id){ PXT.lpl1 = null; return; } PX.eng = Math.min(100, PX.eng + 9 + Math.floor(Math.random()*8)); pxSay('Motorlar ısınıyor … %' + PX.eng, 'engines warming ... ' + PX.eng + '%'); try { sgTone(160 + PX.eng*4, { type:'sawtooth', dur:.12, vol:.05 }); } catch(e){} if (PX.eng >= 100){ PXT.lpl1 = null; setTimeout(() => pxSay('Motorlar hazır', 'engines ready'), 500); try { sgTone(1040, { type:'square', dur:.2, vol:.08 }); } catch(e){} } else PXT.lpl1 = setTimeout(step, 320); }; step(); return; }
-      if (id === 'lpl2'){ if (PX.map < 100){ if (PXT.lpl2) return; PX.map = Math.max(0, PX.map); const step = () => { if (!INT.id){ PXT.lpl2 = null; return; } PX.map = Math.min(100, PX.map + 12 + Math.floor(Math.random()*10)); pxSay('Yıldız haritası yükleniyor … %' + PX.map, 'loading the star map ... ' + PX.map + '%'); if (PX.map >= 100){ PXT.lpl2 = null; PX.mapT = 1; setTimeout(() => pxSay('Yıldız haritası yüklendi', 'star map loaded'), 400); try { sgTone(880, { type:'triangle', dur:.18, vol:.08 }); } catch(e){} } else PXT.lpl2 = setTimeout(step, 260); }; step(); return; }
+      if (id === 'lpl1'){ if (PX.eng >= 100){ pxSay('Motorlar hazır', 'engines ready'); return; } if (PXT.lpl1) return; PX.eng = Math.max(0, PX.eng); const step = () => { if (!INT.id){ PXT.lpl1 = null; return; } PX.eng = Math.min(100, PX.eng + 9 + Math.floor(Math.random()*8)); pxSay('Motorlar ısınıyor … %' + PX.eng, 'engines warming ... ' + PX.eng + '%', 1); try { sgTone(160 + PX.eng*4, { type:'sawtooth', dur:.12, vol:.05 }); } catch(e){} if (PX.eng >= 100){ PXT.lpl1 = null; setTimeout(() => pxSay('Motorlar hazır', 'engines ready', 1), 500); try { sgTone(1040, { type:'square', dur:.2, vol:.08 }); } catch(e){} } else PXT.lpl1 = setTimeout(step, 320); }; step(); return; }
+      if (id === 'lpl2'){ if (PX.map < 100){ if (PXT.lpl2) return; PX.map = Math.max(0, PX.map); const step = () => { if (!INT.id){ PXT.lpl2 = null; return; } PX.map = Math.min(100, PX.map + 12 + Math.floor(Math.random()*10)); pxSay('Yıldız haritası yükleniyor … %' + PX.map, 'loading the star map ... ' + PX.map + '%', 2); if (PX.map >= 100){ PXT.lpl2 = null; PX.mapT = 1; setTimeout(() => pxSay('Yıldız haritası yüklendi', 'star map loaded', 2), 400); try { sgTone(880, { type:'triangle', dur:.18, vol:.08 }); } catch(e){} } else PXT.lpl2 = setTimeout(step, 260); }; step(); return; }
         PX.mapT++; if (PX.mapT === 2){ let n = 16; try { n = CATEGORIES.filter(c => !c.isBuilder).length; } catch(e){} pxSay(n + ' yıldız sistemi haritada', n + ' star systems on the map'); } else pxSay('Hedef: Yıldız İstasyonu', 'destination: the Star Station'); return; }
       if (id === 'lpl3'){ const L = pxLook(), q = L[PX.look++ % L.length]; pxSay(q[0], q[1]); } };
     const TIPS = { lpl0:'Sistem kontrolü · tap to check a ship system', lpl1:'Motorları ısıt · tap to warm the engines', lpl2:'Haritayı yükle · tap to load the star map', lpl3:'Gemi durumu · tap for ship status' };
     { const _h2 = pgHot; pgHot = function(id, x, y, w, h, tip, fn){ if (INT.intro && !REP.on && TIPS[id]){ tip = TIPS[id]; fn = pxClick(id); } return _h2(id, x, y, w, h, tip, fn); }; }
-    { const _i2 = introStart; introStart = function(){ PX.comp = 0; PX.eng = -1; PX.map = -1; PX.mapT = 0; PX.look = 0; _i2(); }; }
+    { const _i2 = introStart; introStart = function(){ PX.comp = 0; PX.eng = -1; PX.map = -1; PX.mapT = 0; PX.look = 0; if (PXT.lpl1){ clearTimeout(PXT.lpl1); PXT.lpl1 = null; } if (PXT.lpl2){ clearTimeout(PXT.lpl2); PXT.lpl2 = null; } PREP.forEach((p, i) => { if (PO[i]){ p[1] = PO[i][0]; p[2] = PO[i][1]; } }); _i2(); }; }
+    setInterval(() => { try { if (INT.intro && PX.look > 0){ const L = pxLook(), q = L[(PX.look - 1) % L.length]; pxSay(q[0], q[1], 3); } } catch(e){} }, 1000);
   }
   /*SG142_FIT*/
   // ===== EDIT ME: wing root per hull [x, y] (mirrored left and right) =====
@@ -26782,6 +26783,8 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   };
   function checkAdmin(){ if (!A.user) return Promise.resolve(false);
     return fetch(A.url + '/rest/v1/admins?select=user_id&user_id=eq.' + encodeURIComponent(A.user.id), { headers:A.hdr() }).then(function(r){ return r.ok ? r.json() : []; }).then(function(rows){ A.admin = Array.isArray(rows) && rows.length > 0; if (A.admin){ try { window.SGENG.setRole('admin'); } catch(e){} } return A.admin; }).catch(function(){ return false; }); }
+  function checkAdmin2(){ return fetch(A.url + '/rest/v1/admins?select=user_id&user_id=eq.' + encodeURIComponent(A.user.id), { headers:A.hdr() }).then(function(r){ if (r.status === 403 || r.status === 404){ try { SGENG.chat.sys('\u2601 Database not set up yet: run the accounts SQL in Supabase (admins table / grants).'); } catch(e){} } }).catch(function(){}); }
+  var _ca = checkAdmin; checkAdmin = function(){ return _ca().then(function(ok){ if (!ok && A.user) checkAdmin2(); return ok; }); };
   function arm(){ var S = window.SGSYNC; if (!S || !A.user) return; if (S.adapter && S.adapter !== AD) prev = S.adapter; S.adapter = AD; S.C.pid = A.pid(); S.C.on = 1; if (!S.C.url) S.C.url = A.url; try { localStorage.setItem('sg_sync', JSON.stringify(S.C)); } catch(e){} S.pull(false).then(function(m){ try { SGENG.chat.sys('\u2601 ' + m); } catch(e){} }); }
   function disarm(){ var S = window.SGSYNC; if (!S || S.adapter !== AD) return; S.adapter = prev; S.C.on = 0; try { localStorage.setItem('sg_sync', JSON.stringify(S.C)); } catch(e){} }
   A.status = function(){ return A.user ? ('signed in as ' + A.user.email + (A.admin ? ' [admin]' : '') + ' \u00b7 id ' + A.pid().slice(0, 8) + '\u2026 \u00b7 cloud save ' + (window.SGSYNC && SGSYNC.C.on ? 'on' : 'off')) : 'not signed in \u2014 saves stay in this browser'; };
@@ -26971,14 +26974,14 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   var room = function(){ try { return (G('INT') || {}).id || ''; } catch(e){ return ''; } };
   // ===== EDIT ME: locked tools [id, button label regex, pause-hub regex, unlock test, Turkish toast, English toast] =====
   var L = [
-    ['grammar', /D\u0130LB\u0130LG\u0130S\u0130|GRAMMAR/i, /D\u0130LB\u0130LG|GRAMMAR/i, function(){ try { if ((G('phrasebook') || []).length > 0) return true; } catch(e){} try { return (G('discoveredWords') || { size:0 }).size >= 8; } catch(e){ return false; } }, 'Dilbilgisi notlar\u0131 a\u00e7\u0131ld\u0131', 'Grammar notes unlocked \u2014 bottom toolbar'],
-    ['timeline', /\bZAMAN\b|TIMELINE/i, /\bZAMAN\b|TIMELINE|ZAMAN \u00c7\u0130ZELGES/i, function(){ try { if (((G('Q') || {}).step | 0) >= 2) return true; } catch(e){} return sysId() === 'famousturks' || !!flags().rift1 || !!flags().q_time; }, 'Zaman \u00e7izelgesi a\u00e7\u0131ld\u0131', 'Timeline unlocked \u2014 the first moment is in your log; the rest wait in the History system'],
-    ['echoes', /YANKI|ECHO/i, /YANKI|ECHO/i, function(){ try { var e = JSON.parse(localStorage.getItem('sg_echo') || 'null'); if (e && ((Array.isArray(e) && e.length) || (typeof e === 'object' && Object.keys(e).length))) return true; } catch(x){} return !!flags().echo1; }, 'Yank\u0131lar a\u00e7\u0131ld\u0131', 'Echoes of the past unlocked \u2014 more are scattered across the systems'],
-    ['photo', /FOTO|PHOTO/i, /FOTO\u011eRAF|PHOTO MODE/i, function(){ return !!flags().cmd1; }, 'Foto\u011fraf modu a\u00e7\u0131ld\u0131', 'Photo mode unlocked \u2014 Shift+P']
+    ['grammar', /D\u0130LB\u0130LG\u0130S\u0130|GRAMMAR/i, /D\u0130LB\u0130LG|GRAMMAR/i, function(){ try { var g = window.SGGRAM && SGGRAM.GL; if (g && (g.all || Object.keys(g.got).some(function(k){ return k !== 'starter'; }))) return true; } catch(e){} try { var d = JSON.parse(localStorage.getItem('sg_gram') || 'null'); return !!(d && (d.all === 1 || (d.got && Object.keys(d.got).some(function(k){ return k !== 'starter'; })))); } catch(e){ return false; } }, 'Dilbilgisi notlar\u0131 a\u00e7\u0131ld\u0131', 'Grammar notes unlocked \u2014 each system hides one scroll'],
+    ['timeline', /\bZAMAN\b|TIMELINE/i, /\bZAMAN\b|TIMELINE|ZAMAN \u00c7\u0130ZELGES/i, function(){ try { if (((G('Q') || {}).step | 0) >= 2) return true; } catch(e){} try { if (window.SGTLLOCK && SGTLLOCK.count() > 0) return true; } catch(e){} return false; }, 'Zaman \u00e7izelgesi a\u00e7\u0131ld\u0131', 'Timeline unlocked \u2014 the first moment is in your log', function(){ try { setTimeout(function(){ var c = G('cpSay'); if (typeof c === 'function') c('Komutan: gerisi Tarih sisteminde yaz\u0131l\u0131, kaptan.', 'Commander: the rest is written in the History system, captain.', true); }, 3500); } catch(e){} }],
+    ['echoes', /YANKI|ECHO/i, /YANKI|ECHO/i, function(){ try { if (window.SGECHO && SGECHO.count() > 0) return true; } catch(e){} try { var e = JSON.parse(localStorage.getItem('sg_echo') || 'null'); return !!(Array.isArray(e) && e.length); } catch(x){ return false; } }, 'Yank\u0131lar a\u00e7\u0131ld\u0131', 'Echoes of the past unlocked \u2014 more are scattered across the systems and quests'],
+    ['photo', /FOTO|PHOTO/i, /FOTO\u011eRAF|PHOTO MODE/i, function(){ try { var p = window.SGLOVEPHOTO && SGLOVEPHOTO.P; if (p && (p.ask || p.done)) return true; } catch(e){} try { var d = JSON.parse(localStorage.getItem('sg_lovephoto') || 'null'); return !!(d && (d.ask || d.done)); } catch(e){ return false; } }, 'Kamera a\u00e7\u0131ld\u0131', 'Camera unlocked \u2014 G\u00f6n\u00fcl wants a photo of you two (FOTO on the toolbar, Shift+P)']
   ];
   var st = document.createElement('style'); st.textContent = '#toolbar .btn.sg-ulock,#toolbar .btn[data-sub=PHOTO].sg-ulock,#sg-ov .sgp-g .sgp-b.sg-ulock,[id$="-fab"].sg-ulock{display:none!important}'; document.head.appendChild(st);
   var note = function(tr, en){ try { var t = G('toast'); if (typeof t === 'function'){ t('<b>\ud83d\udd13 ' + tr + '</b> \u00b7 ' + en); return; } } catch(e){} try { SGENG.chat.sys('\ud83d\udd13 ' + tr + ' \u00b7 ' + en); } catch(e){} };
-  function tick(){ L.forEach(function(k){ var id = k[0]; if (!U[id]){ var ok = false; try { ok = !!k[3](); } catch(e){} if (ok){ U[id] = Date.now(); save(); note(k[4], k[5]); try { SGENG.emit('unlock:' + id, {}); } catch(e){} } }
+  function tick(){ L.forEach(function(k){ var id = k[0]; if (!U[id]){ var ok = false; try { ok = !!k[3](); } catch(e){} if (ok){ U[id] = Date.now(); save(); note(k[4], k[5]); try { if (k[6]) k[6](); } catch(e){} try { SGENG.emit('unlock:' + id, {}); } catch(e){} } }
       var locked = !U[id];
       try { document.querySelectorAll('#toolbar .btn').forEach(function(b){ if (k[1].test(b.textContent || '')) b.classList.toggle('sg-ulock', locked); }); } catch(e){}
       try { document.querySelectorAll('#sg-ov .sgp-g .sgp-b').forEach(function(b){ if (b.dataset.hub || b.dataset.hubnav) return; if (k[2].test(b.textContent || '')) b.classList.toggle('sg-ulock', locked); }); } catch(e){}
@@ -26989,6 +26992,55 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
     if (window.SGCMDS && SGCMDS.NEW) SGCMDS.NEW.locks = 1; } catch(e){ clearInterval(reg); } }, 500);
   window.SGUILOCKS = { U:U, L:L, tick:tick };
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('uilocks: ' + e); } })();
+</script>
+<script id="sg-pickups-js">
+(function(){ 'use strict'; try {
+  var G = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
+  var call = function(n){ var f = G(n); if (typeof f !== 'function') return undefined; return f.apply(null, Array.prototype.slice.call(arguments, 1)); };
+  // --- echoes: the first one is handed over in the Archive; later ones also come from quests ---
+  var ecoT = 0, lastQ = 0;
+  var nextEcho = function(){ var E2 = window.SGECHO; if (!E2) return null; var L = E2.ids(); for (var i = 0; i < L.length; i++) if (!E2.got[L[i]]) return L[i]; return null; };
+  setInterval(function(){ try { var E2 = window.SGECHO, I = G('INT'); if (!E2 || !I || I.id !== 'archive'){ ecoT = 0; return; } if (E2.count() > 0) return; if (++ecoT < 4) return; var id = nextEcho(); if (!id) return; E2.collect(id); setTimeout(function(){ try { call('toast', '<b>\u2726 Ar\u015fivci robot</b> \u00b7 the archivist hands you your first echo of the past \u2014 others are scattered through the star systems and quests'); } catch(e){} }, 2500); } catch(e){} }, 1000);
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.on){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    var award = function(why){ try { var E2 = window.SGECHO; if (!E2 || E2.count() === 0) return; var id = nextEcho(); if (!id) return; E2.collect(id); } catch(e){} };
+    ['mission:done', 'encounter:done', 'crewquest:done'].forEach(function(n){ E.on(n, function(){ award(n); }); });
+    E.on('sidequest:done', function(){ if (++lastQ % 3 === 0) award('sidequest'); });
+  } catch(e){ clearInterval(reg); } }, 500);
+  // --- G\u00f6n\u00fcl: \"a photo of us\" (after the Flower chapter) ---
+  var PK = 'sg_lovephoto', P = { ask:0, done:0, last:0 }; try { var d = JSON.parse(localStorage.getItem(PK) || 'null'); if (d && typeof d === 'object'){ P.ask = d.ask ? 1 : 0; P.done = d.done ? 1 : 0; } } catch(e){}
+  var psave = function(){ try { localStorage.setItem(PK, JSON.stringify(P)); } catch(e){} };
+  var near = function(){ try { var LV = window.SGLOVE, S = G('S'); return !!(LV && LV.C.on && S && Math.hypot(S.ship.x - LV.C.x, S.ship.y - LV.C.y) < 420); } catch(e){ return false; } };
+  var pcheck = function(){ try { var LV = window.SGLOVE, S = G('S'); if (!LV || !LV.inL() || !LV.C.on || P.done) return; if (LV.L.ch < 3 && !LV.L.fin) return; if (LV.C.bub) return; var now = S.t || 0; if (now - P.last < 40) return; P.last = now;
+      if (!P.ask){ P.ask = 1; psave(); LV.say('Bir foto\u011fraf \u00e7ekelim mi? \u0130kimiz, y\u0131ld\u0131zlar\u0131n alt\u0131nda.', 'Shall we take a photo? The two of us, under the stars.', true); call('toast', '<b>\u2665 Bir foto\u011fraf \u00b7 a photo of us</b> \u2014 G\u00f6n\u00fcl wants a picture. Open FOTO on the toolbar (Shift+P), fly close to her and press \ud83d\udcf7 \u00c7EK.'); try { call('sgRing', LV.C.x, LV.C.y, '#ff8fd0', 160, 1); } catch(e){} }
+      else LV.say('Foto\u011fraf\u0131m\u0131z\u0131 unutma! Kameray\u0131 a\u00e7.', 'Do not forget our photo! Open the camera.', true); } catch(e){} };
+  setInterval(pcheck, 2000);
+  var pdone = function(){ try { var LV = window.SGLOVE, S = G('S'); P.done = 1; psave(); S.dust += 10; S.score += 200; try { call('sgRing', LV.C.x, LV.C.y, '#fff', 220, 1.2); call('sgBurst', LV.C.x, LV.C.y, '#ff8fd0', 30, 220); } catch(e){} LV.say('Harika \u00e7\u0131kt\u0131! Bu an\u0131 hep saklayaca\u011f\u0131m.', 'It came out wonderful! I will keep this moment forever.', true);
+      var tr = 'Birlikte foto\u011fraf \u00e7ektik.', en = 'We took a photo together.'; try { var pb = G('phrasebook'); if (pb && !pb.some(function(x){ return x.defId === 'custom_love_photo'; })) call('addToPhrasebook', 'custom_love_photo', 'G\u00f6n\u00fcl', tr, en, 'combo'); } catch(e){}
+      call('toast', '<b>\u2665 Foto\u011fraf tamam \u00b7 photo taken</b> \u2014 ' + tr + ' <i>' + en + '</i> \u00b7 +10 \u2726'); try { window.SGENG.emit('lovephoto:done', {}); } catch(e){} } catch(e){} };
+  var onShot = function(){ try { var LV = window.SGLOVE; if (!LV || !LV.inL() || !LV.C.on || P.done || !P.ask) return; if (near()) pdone(); else LV.say('Biraz daha yakla\u015f, ikimiz de kadrajda olal\u0131m!', 'Come a little closer, so we are both in the frame!', true); } catch(e){} };
+  var obTries = 0, ob = setInterval(function(){ var el = document.querySelector('#sg-ph .fl'); if (!el){ if (++obTries > 60) clearInterval(ob); return; } clearInterval(ob); var was = '0'; new MutationObserver(function(){ var o = el.style.opacity || '0'; if (o !== '0' && was === '0') onShot(); was = o; }).observe(el, { attributes:true, attributeFilter:['style'] }); }, 500);
+  var t2 = 0, r2 = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd){ if (++t2 > 120) clearInterval(r2); return; } clearInterval(r2); try { E.saves.register('love story', [PK]); } catch(e){}
+    E.cmd('lovephoto', { h:'photo quest: /lovephoto status|ask|done|reset', admin:true, run:function(a){ var x = Array.isArray(a) ? a[0] : a; if (x === 'reset'){ P.ask = 0; P.done = 0; P.last = 0; psave(); return 'Photo quest reset.'; } if (x === 'ask'){ P.ask = 1; P.last = 0; psave(); return 'G\u00f6n\u00fcl will ask for the photo.'; } if (x === 'done'){ pdone(); return 'Photo quest completed.'; } return 'asked ' + P.ask + ' \u00b7 done ' + P.done; } });
+    if (window.SGCMDS && SGCMDS.NEW) SGCMDS.NEW.lovephoto = 1; } catch(e){ clearInterval(r2); } }, 500);
+  window.SGLOVEPHOTO = { P:P, check:pcheck, shot:onShot };
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('pickups: ' + e); } })();
+</script>
+<script id="sg-syncquiet-js">
+(function(){ 'use strict'; try {
+  // ===== EDIT ME: keys that change constantly and should NOT trigger a cloud push by themselves (they still ride along with real progress) =====
+  var QUIET = { sg_lkn:1, sg_vheard:1, sg_unl2:1, sg_hhint:1, sg_sunhint:1, sg_seen:1 };
+  var _set = Storage.prototype.setItem;
+  Storage.prototype.setItem = function(k, v){ var S = window.SGSYNC; if (this === localStorage && QUIET[k] && S && S.C && S.C.on){ S.C.on = 0; try { return _set.apply(this, arguments); } finally { S.C.on = 1; } } return _set.apply(this, arguments); };
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('syncquiet: ' + e); } })();
+</script>
+<script id="sg-boardfix-js">
+(function(){ 'use strict'; try {
+  var st = document.createElement('style'); st.id = 'sg-boardfix-css'; st.textContent = '#app{display:flex;flex-direction:column}#board{flex:1 1 auto;min-height:0;align-self:stretch}'; document.head.appendChild(st);
+  var last = -1;
+  function fix(){ try { var b = document.getElementById('board'); if (!b) return; var r = b.getBoundingClientRect(); if (r.height < 80){ var top = Math.max(0, Math.round(r.top)); b.style.minHeight = 'calc(100vh - ' + top + 'px)'; } var h = Math.round(b.getBoundingClientRect().height); if (h !== last){ last = h; try { window.dispatchEvent(new Event('resize')); } catch(e){} } } catch(e){} }
+  [50, 300, 900, 2000, 4000].forEach(function(ms){ setTimeout(fix, ms); }); setInterval(fix, 3000); window.addEventListener('resize', function(){ setTimeout(fix, 60); });
+  window.SGBOARDFIX = { fix:fix };
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('boardfix: ' + e); } })();
 </script>
 </body>'
 </html>
