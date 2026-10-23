@@ -30723,7 +30723,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   } catch(e){ clearInterval(reg); } }, 500);
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('stationprobe: ' + e); } })();
 </script>
-<script id="sg-ver54-js">
+<script type="text/plain" id="sg-ver54-retired" data-retired="superseded by sg-build-js; had a broken try block">
 (function(){ try { var V = window.SGVER; if (V && typeof V === 'object'){ V.v = '0.5.1'; V.build = 62; try { Object.defineProperty(V, 'str', { configurable:true, get:function(){ return function(){ return 'v' + V.v + ' \u00b7 b' + V.build; }; }, set:function(x){ /* ignored: the version is set here only (older modules used to roll it back) */ } }); } try { Object.defineProperty(V, 'v', { configurable:true, get:function(){ return '0.5.7'; }, set:function(){} }); Object.defineProperty(V, 'build', { configurable:true, get:function(){ return 68; }, set:function(){} }); } catch(e){} catch(e){ V.str = function(){ return 'v' + V.v + ' \u00b7 b' + V.build; }; } if (Array.isArray(V.log)) V.log.unshift({ v:'0.5.7', b:68, t:'boot fix: the picker sorter looped with the game\u2019s own list timer (retired, rewritten without an observer); system picker grouped by drive phase (tier 1 above 2 above 3); the station annex is a Library GATE to the existing Library system, not a second library; hazards (shards jam, fire burns, radiation poisons); sensor scramble in storms/flares/supernova; supernova rarer and never at the station; the Library under the station + its lore; drive tiers rebalanced (describe/verbs/Love \u2192 phase 2); pixel ship formation hold + per-form motion; atlas wiki links + glossary; docs pass: /cmds usage for every command since v0.1; six new Guide pages (what\u2019s new, economy, other pilots, learning, phone, admin); World Atlas in the Almanac + /atlas; mobs fixed (tag collided with the game\u2019s bh field \u2014 rings on every word); power-up chips hidden on the word card; phone stat window sanitizer; station hub redrawn at the rooms\u2019 angles; cargo ships 2.3x; bank vault wheel; version locked (no module can roll it back); chat log scrolls newest-at-bottom; phone chat always open; homing bolts target comets; station doors/arms/ring share one angle; co-pilot text wraps; chat input pinned; toolbar self-heal + /toolbar; hold window wraps; toasts above touch controls; phone: hamburger under pause, scrolling command bar, chat forced visible; cartridge tip removed; puppy-lock toast once; comet types get distinct motion/looks; mob spawn self-check; Phase B: private realtime (flag), JWT-bound realtime, /report, /block, server rate limits; /export_me, /delete_me, /privacy; study-mode practice credit \u2192 memory; preview badges on study boards; Word of the Day tap = hear + save; release notes in What\u2019s new; /behave probe; phone controls rethought: visible joystick, FIRE/PULL + one command button with an expandable bar, chat reachable; cartridge tips no longer repeat on login; version stamp guarded (rejects stale writers, old poller retired); SGVER.str is a function again (Guide / What\u2019s new / /version open); version stamp kept current; eval gate accepts internal role flips (signed-out admins get all patches); board sized from layout (toolbar trap); unlock detector first pass at 15 s; window bar + minimize buttons hidden on pause; power-up chips suppressed on the word card at the CSS level; station ring re-aimed to the rooms via the canvas transform; toolbar slides away and back; chat body fixed-height flex; leftstack2 retired' }); } setInterval(function(){ try { var s = document.getElementById('sg-build'); if (!s) return; var W = window.SGVER, want = 'Alpha ' + (W && typeof W.str === 'function' ? W.str() : 'v0.4.7 \u00b7 b57'); if (s.textContent !== want) s.textContent = want; } catch(e){} }, 1500); } catch(e){} })();
 </script>
 <script id="sg-boardfix3-js">
@@ -31279,7 +31279,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 <script id="sg-build-js">
 /*SG_BUILD: the ONE place the version lives. Bump V and B here; everything else (stamp, /version, Guide, News) reads SGVER which is re-pointed at this object. Earlier bump scripts changed values a locked getter had already captured — hence the stale stamp.*/
 (function(){ 'use strict'; try {
-  var V='0.7.7', B=87, LABEL='Alpha v'+V+' \u00b7 b'+B;
+  var V='0.7.8', B=88, LABEL='Alpha v'+V+' \u00b7 b'+B;
   var BU=window.SGBUILD={ v:V, build:B, label:LABEL, str:function(){ return 'v'+V+' \u00b7 b'+B; }, fixes:0, mode:'' };
   function repoint(){ try{ var S=window.SGVER; if(!S){ window.SGVER={ v:V, build:B, LOG:[], str:function(){ return BU.str(); } }; BU.mode='created'; return; } var ok=true; ['v','build','str'].forEach(function(k){ try{ Object.defineProperty(S,k,{ configurable:true, enumerable:true, get:function(){ return k==='v'?V:k==='build'?B:function(){ return BU.str(); }; }, set:function(){} }); }catch(e){ ok=false; } }); BU.mode=ok?'repointed':'partial'; if(!ok){ try{ var NS={}; Object.keys(S).forEach(function(k){ if(['v','build','str'].indexOf(k)<0) NS[k]=S[k]; }); NS.v=V; NS.build=B; NS.str=function(){ return BU.str(); }; NS.LOG=S.LOG||[]; window.SGVER=NS; BU.mode='replaced'; }catch(e2){} } }catch(e){} }
   repoint();
@@ -32242,7 +32242,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   }catch(e){ clearInterval(reg); } },500);
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('pcomet: '+e); } })();
 </script>
-<script id="sg-stellar-js">
+<script type="text/plain" id="sg-stellar-retired" data-retired="parse error (truncated block); re-shipped later">
 /*SG_STELLAR: star-system template — every system's star has a class (type/colour), size, age and volatility. Admin-editable per system, saved as CONTENT (sg_stellar) so everyone sees the same sky. Drives sgSysFor (kind, hue), sgDrawStar (scale, custom classes) and, in part 2, weather frequency.*/
 (function(){ 'use strict'; try {
   var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
@@ -32367,7 +32367,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   BM.snap=snap; BM.applyHit=applyHit;
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('bossmirror: '+e); } })();
 </script>
-<script id="sg-bossmirror2-js">
+<script type="text/plain" id="sg-bossmirror2-retired" data-retired="parse error; peer side to be re-shipped against the core's state object">
 /*SG_BOSSMIRROR2: peer side — draw mirrored bosses with the game's own drawers (msDraw/msFDraw/sgDrawNpc/SGBOSS), bolt collisions -> relayed hits, pointers + 'X is fighting Y' toast, mothership spawn suppression on clients, win credit for helpers, /bossmirror.*/
 (function(){ 'use strict'; try {
   var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
@@ -32816,6 +32816,58 @@ var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG, C=window.SGCMD
  try{ if(window.SGROADMAP){ SGROADMAP.push(['harbor-bots','Construction bots at the Old Harbor','resident builder bots that visibly rebuild each module','planned'],['dj-sync','DJ playback position sync + set list','planned, after system servers','planned']); } }catch(e){}
 }catch(e){ clearInterval(reg); } },600);
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('docs4: '+e); } })();
+</script>
+<script id="sg-watchdog-js">
+/*SG_WATCHDOG: names the cause of a freeze. Wraps every engine hook (tick/draw/ui) to record the hook running RIGHT NOW into localStorage every 500 ms; on the next load, if the previous session ended with a stalled heartbeat, the last hook + the system switch in progress are logged (Doctor → engine errors). Also a long-task observer and a per-hook max-ms table (/watchdog).*/
+(function(){ 'use strict'; try {
+var WD=window.SGWATCHDOG={ cur:'', last:'', beat:0, max:{}, long:[], loading:'' };
+var K='sg_wd';
+try{ var prev=JSON.parse(localStorage.getItem(K)||'null'); if(prev&&prev.beat&&(Date.now()-prev.beat)<3600000&&prev.cur){ (window.SGX=window.SGX||{err:[]}).err.push('watchdog: previous session stalled — last hook running: '+prev.cur+(prev.loading?' · during system load: '+prev.loading:'')+' · slowest: '+(prev.worst||'?')); WD.prevStall={ cur:prev.cur, loading:prev.loading, worst:prev.worst }; } }catch(e){}
+function beat(){ try{ var worst='', w=0; Object.keys(WD.max).forEach(function(k){ if(WD.max[k]>w){ w=WD.max[k]; worst=k+' '+w.toFixed(0)+'ms'; } }); localStorage.setItem(K,JSON.stringify({ beat:Date.now(), cur:WD.cur, loading:WD.loading, worst:worst })); }catch(e){} }
+setInterval(beat,500); window.addEventListener('beforeunload',function(){ try{ localStorage.removeItem(K); }catch(e){} });
+try{ if(window.PerformanceObserver){ var po=new PerformanceObserver(function(l){ l.getEntries().forEach(function(en){ if(en.duration>120){ WD.long.push({ t:Date.now(), ms:Math.round(en.duration), hook:WD.cur||WD.last }); if(WD.long.length>12) WD.long.shift(); } }); }); po.observe({ entryTypes:['longtask'] }); } }catch(e){}
+var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.hookData||!E.cmd){ if(++tries>160) clearInterval(reg); return; } clearInterval(reg);
+ var H=E.hookData(); ['tick','draw','ui','reset'].forEach(function(kind){ (H[kind]||[]).forEach(function(h){ if(!h||typeof h.fn!=='function'||h.fn.__wd) return; var o=h.fn, nm=kind+':'+h.name; var w=function(){ WD.cur=nm; var t0=performance.now(); try{ return o.apply(this,arguments); } finally { var ms=performance.now()-t0; if(ms>(WD.max[nm]||0)) WD.max[nm]=ms; WD.last=nm; WD.cur=''; } }; w.__wd=1; h.fn=w; }); });
+ try{ E.on('system:load',function(d){ WD.loading=(d&&d.id)||'?'; setTimeout(function(){ WD.loading=''; },4000); }); }catch(e){}
+ try{ var A=window.SGAPI; if(A&&A.run){ var was=E.role; try{ E.role='admin'; A.run("(function(){ if(sgLoad.__wd) return 'dup'; var o=sgLoad; sgLoad=function(i,op){ try{ window.SGWATCHDOG.loading='sgLoad '+i; }catch(e){} var r=o.apply(this,arguments); try{ setTimeout(function(){ window.SGWATCHDOG.loading=''; },4000); }catch(e){} return r; }; sgLoad.__wd=1; return 'ok'; })()"); } finally { E.role=was; } } }catch(e){}
+ E.cmd('watchdog',{h:'freeze finder: slowest hooks, long tasks, previous stall',admin:true,run:function(){ var ks=Object.keys(WD.max).sort(function(a,b){ return WD.max[b]-WD.max[a]; }).slice(0,8); return (WD.prevStall?'PREVIOUS SESSION STALLED in '+WD.prevStall.cur+(WD.prevStall.loading?' during '+WD.prevStall.loading:'')+'\n':'')+'slowest hooks: '+ks.map(function(k){ return k+' '+WD.max[k].toFixed(1)+'ms'; }).join(' · ')+'\nlong tasks: '+(WD.long.map(function(l){ return l.ms+'ms@'+(l.hook||'?'); }).join(' · ')||'none'); }});
+}catch(e){ clearInterval(reg); } },400);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('watchdog: '+e); } })();
+</script>
+<script id="sg-mobile2-js">
+/*SG_MOBILE2: touch/tablet HUD. (1) #sg-tl (hull/energy card) is RE-PARENTED into a fixed top-left frame on touch so no ancestor offset or stale style can push it off-screen; its rows are forced visible (hull, hearts, energy) with nav/buff rows hidden. (2) An icon toolbar under it: 💬 chat · 📦 cargo · 🧰 materials · 📋 quests · ◎ radar · ☰ toolbar — each toggles, state saved. (3) Chat is closable again: body.mb-nochat beats phone3's forced-open rule; default closed.*/
+(function(){ 'use strict'; try {
+var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
+var KEY='sg_mobile2', M=window.SGMOBILE2={ st:{ chat:0, bl:1, inv:1, qw:0, radar:1, tb:1 }, moved:0, ticks:0 };
+try{ var d=JSON.parse(localStorage.getItem(KEY)||'null'); if(d&&typeof d==='object') Object.keys(M.st).forEach(function(k){ if(k in d) M.st[k]=d[k]?1:0; }); }catch(e){}
+var save=function(){ try{ localStorage.setItem(KEY,JSON.stringify(M.st)); }catch(e){} };
+var touch=function(){ return document.body.classList.contains('tch')||document.body.classList.contains('sg-phone')||(window.matchMedia&&matchMedia('(pointer:coarse)').matches); };
+var css=document.createElement('style'); css.textContent=[
+ '#sg-mbf{position:fixed;left:8px;top:calc(8px + env(safe-area-inset-top));z-index:12;display:none;flex-direction:column;gap:4px;width:176px;pointer-events:none}',
+ 'body.tch.sg-on:not(.sg-menu) #sg-mbf{display:flex}',
+ '#sg-mbf #sg-tl{position:static!important;left:auto!important;top:auto!important;bottom:auto!important;right:auto!important;transform:none!important;width:176px!important;max-width:176px!important;height:auto!important;max-height:none!important;margin:0!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:hidden!important;font-size:11px}',
+ '#sg-mbf #sg-tl > *{display:block!important;height:auto!important;visibility:visible!important;opacity:1!important}',
+ '#sg-mbf #sg-tl .sg-sm,#sg-mbf #sg-tl .bf,#sg-mbf #sg-tl .sg-bar:not(.en){display:none!important}',
+ '#sg-mbar{display:flex;gap:4px;pointer-events:auto;width:176px}#sg-mbar div{flex:1;height:30px;display:flex;align-items:center;justify-content:center;font-size:15px;background:rgba(6,14,12,.82);border:1px solid rgba(109,255,176,.5);color:#fff;-webkit-tap-highlight-color:transparent}#sg-mbar div.off{opacity:.38;border-color:rgba(255,255,255,.2)}#sg-mbar div:active{background:rgba(109,255,176,.3)}',
+ 'body.tch.mb-nochat #sg-comm{display:none!important}body.tch.mb-chat #sg-comm{display:block!important;left:8px!important;right:8px!important;width:auto!important;top:auto!important;bottom:calc(246px + env(safe-area-inset-bottom))!important}',
+ 'body.tch.mb-nobl #sg-bl{display:none!important}body.tch.mb-noinv #sg-inv2{display:none!important}body.tch.mb-noqw #sg-qw,body.tch.mb-noqw #sg-qd{display:none!important}body.tch.mb-notb #toolbar{transform:translateY(130%)!important;pointer-events:none!important}',
+ 'body.tch.mb-qw #sg-qw{display:flex!important;right:8px!important;top:calc(100px + env(safe-area-inset-top))!important;width:180px!important;height:120px!important;font-size:10px}',
+ 'body.tch.sg-on:not(.sg-menu) #sg-hwbar{display:none!important}'
+].join(''); document.head.appendChild(css);
+var frame=document.createElement('div'); frame.id='sg-mbf'; frame.innerHTML='<div id="sg-mbar"></div>'; document.body.appendChild(frame); var bar=frame.querySelector('#sg-mbar');
+var CH=[['chat','💬','sohbet · chat'],['bl','📦','kargo · cargo'],['inv','🧰','malzeme · materials'],['qw','📋','görevler · quests'],['radar','◎','radar'],['tb','☰','alt çubuk · bottom bar']];
+function paint(){ bar.innerHTML=CH.map(function(c){ return '<div data-k="'+c[0]+'" class="'+(M.st[c[0]]?'':'off')+'" title="'+c[2]+'">'+c[1]+'</div>'; }).join(''); }
+function apply(){ var B=document.body.classList; B.toggle('mb-chat',!!M.st.chat); B.toggle('mb-nochat',!M.st.chat); B.toggle('mb-nobl',!M.st.bl); B.toggle('mb-noinv',!M.st.inv); B.toggle('mb-qw',!!M.st.qw); B.toggle('mb-noqw',!M.st.qw); B.toggle('mb-notb',!M.st.tb); try{ var H=window.SGHUDWIN4||window.SGHUDWIN; if(H&&H.W){ H.W.radar=M.st.radar; } document.body.classList.toggle('hw-noradar',!M.st.radar); }catch(e){} try{ var C=window.SGCOMM4||window.SGCOMM; if(C&&C.set){ if(M.st.chat){ C.set('chat'); if(C.openPane) C.openPane(); } else if(C.close) C.close(); } }catch(e){} }
+bar.addEventListener('click',function(e){ var d=e.target.closest('[data-k]'); if(!d) return; var k=d.dataset.k; M.st[k]=M.st[k]?0:1; save(); paint(); apply(); try{ g('sgTone')(M.st[k]?660:440,{type:'triangle',dur:.06,vol:.06}); }catch(x){} if(k==='chat'&&M.st.chat){ setTimeout(function(){ try{ var inp=document.querySelector('#sg-chat input'); if(inp) inp.focus(); }catch(x){} },60); } });
+bar.addEventListener('pointerdown',function(e){ e.stopPropagation(); });
+function tick(){ try{ M.ticks++; if(!touch()) return; var tl=document.getElementById('sg-tl'); if(tl&&tl.parentNode!==frame){ frame.insertBefore(tl,bar); M.moved++; } apply(); }catch(e){} }
+setInterval(tick,600); paint(); apply();
+var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg); E.cmd('mobile2',{h:'touch HUD: /mobile2 | chat|bl|inv|qw|radar|tb on|off | status',run:function(a){ a=Array.isArray(a)?a:String(a||'').split(' '); if(a[0]&&(a[0] in M.st)&&a[1]){ M.st[a[0]]=a[1]==='on'?1:0; save(); paint(); apply(); return a[0]+' '+a[1]; } var tl=document.getElementById('sg-tl'), r=tl?tl.getBoundingClientRect():null; return 'touch '+touch()+' · moved '+M.moved+' · tl '+(r?Math.round(r.left)+','+Math.round(r.top)+' '+Math.round(r.width)+'x'+Math.round(r.height):'none')+' · kids visible '+(tl?Array.prototype.filter.call(tl.children,function(c){ return c.offsetHeight>0; }).length+'/'+tl.children.length:'-')+' · '+JSON.stringify(M.st); }}); try{ if(window.SGROADMAP) SGROADMAP.push(['mobile2','Touch HUD: re-parented stat card + icon toolbar + closable chat','phone and tablet','done']); }catch(e){} }catch(e){ clearInterval(reg); } },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('mobile2: '+e); } })();
+</script>
+<script id="sg-docs5-js">
+/*SG_DOCS5: b88 notes.*/
+(function(){ try { var t=setInterval(function(){ var V=window.SGVER; if(!V||!Array.isArray(V.LOG)) return; clearInterval(t); V.LOG.unshift({ v:'0.7.8', b:88, k:'fix', t:'Retired three scripts that failed to parse (ver54, stellar core, boss-mirror peer side); freeze watchdog (/watchdog) names the hook running during a stall; touch HUD rebuilt: stat card re-parented to a fixed frame, icon toolbar (chat/cargo/materials/quests/radar/bottom bar), chat closable' }); try{ if(window.SGROADMAP){ SGROADMAP.push(['stellar-reship','Star-system template re-ship','compact rewrite of SG_STELLAR after the parse error','next'],['bossmirror-reship','Boss mirroring peer side re-ship','needs sg-bossmirror-js lines 1-12 (state object)','next']); } }catch(e){} },600); } catch(e){} })();
 </script>
 <!-- EM:END -->
 <script type="text/plain" data-retired="truncated star-template core; rebuilt as sg-stellar-js" id="sg-star-js">
