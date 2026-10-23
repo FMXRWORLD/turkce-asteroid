@@ -12599,10 +12599,10 @@ function showWord(i,quiet){
   stDraw = function(c){
     if (!isStarter()) return; const cx = S.W/2, cy = S.H/2, t = S.t; c.save(); c.translate(cx, cy); c.lineJoin = 'round';
     var __rr = t*0.035; try { if (typeof doorAng === 'function' && DOORS && DOORS[0]){ var __q = doorAng(DOORS[0]) - (DOORS[0].a0 || 0); if (isFinite(__q)) __rr = __q; } } catch(e){} window.__sgRingRot = __rr;
-    c.save(); c.rotate(__rr); c.strokeStyle = '#2c3340'; c.lineWidth = 16; c.beginPath(); c.arc(0, 0, 128, 0, 6.283); c.stroke(); c.strokeStyle = '#59627a'; c.lineWidth = 2; [120, 136].forEach(r => { c.beginPath(); c.arc(0, 0, r, 0, 6.283); c.stroke(); });
+    c.save(); c.rotate(__rr); try { const _p0 = doorXY(DOORS[0]), _want = Math.atan2(_p0.y - cy, _p0.x - cx) - DOORS[0].a0, _m = c.getTransform(), _have = Math.atan2(_m.b, _m.a); c.rotate(_want - _have); } catch(_e){} c.strokeStyle = '#2c3340'; c.lineWidth = 16; c.beginPath(); c.arc(0, 0, 128, 0, 6.283); c.stroke(); c.strokeStyle = '#59627a'; c.lineWidth = 2; [120, 136].forEach(r => { c.beginPath(); c.arc(0, 0, r, 0, 6.283); c.stroke(); });
     for (let i = 0; i < 12; i++){ c.save(); c.rotate(i*.5236); c.fillStyle = (Math.floor(t*.5) + i)%4 ? '#ffd76a' : '#262b35'; c.fillRect(-3, -130, 6, 5); c.restore(); }
     c.strokeStyle = '#3a4150'; c.lineWidth = 8; for (let i = 0; i < 4; i++){ c.beginPath(); c.moveTo(Math.cos(i*1.5708)*54, Math.sin(i*1.5708)*54); c.lineTo(Math.cos(i*1.5708)*120, Math.sin(i*1.5708)*120); c.stroke(); } c.restore();
-    DOORS.forEach(d => { c.save(); c.rotate(doorAng(d)); c.fillStyle = '#3a4150'; c.strokeStyle = '#8c95ab'; c.lineWidth = 1.5; c.fillRect(136, -6, 34, 12); c.strokeRect(136, -6, 34, 12); c.restore(); });
+    DOORS.forEach(d => { const _p = doorXY(d), _a = Math.atan2(_p.y - cy, _p.x - cx); c.save(); c.rotate(_a); c.fillStyle = '#3a4150'; c.strokeStyle = '#8c95ab'; c.lineWidth = 1.5; c.fillRect(136, -6, 46, 12); c.strokeRect(136, -6, 46, 12); c.restore(); });
     c.save(); c.rotate(-t*.02); const g = c.createRadialGradient(-10, -10, 4, 0, 0, 56); g.addColorStop(0, '#8a93a8'); g.addColorStop(1, '#2a2f3a'); c.fillStyle = g; c.strokeStyle = '#aab3c8'; c.lineWidth = 2; c.beginPath(); c.arc(0, 0, 54, 0, 6.283); c.fill(); c.stroke(); for (let i = 0; i < 12; i++){ const a = i*.5236; c.fillStyle = (Math.floor(t*2) + i)%4 ? '#6ee7ff' : '#1d2a36'; c.fillRect(Math.cos(a)*40 - 3, Math.sin(a)*40 - 3, 6, 6); } c.restore();
     c.fillStyle = '#d9c8ff'; c.font = '700 10px Orbitron,sans-serif'; c.textAlign = 'center'; c.fillText('İSTASYON', 0, 4); c.restore();
     ST.traffic.forEach(s => { const dd = Math.hypot(s.x - S.ship.x, s.y - S.ship.y), hv = Math.hypot(S.mx + S.cx - s.x, S.my + S.cy - s.y) < 30; c.save(); c.translate(s.x, s.y + Math.sin(t + s.ph)*3); stShip(c, s.k[2], s.k[3] === 2 ? 1.7 : 1.2, s.vx > 0 ? 0 : Math.PI); if (dd < 140 || hv){ c.fillStyle = s.k[2]; c.font = '600 11px "Share Tech Mono",monospace'; c.textAlign = 'center'; c.fillText(hv ? s.k[0] + ' · ' + s.k[1] : s.k[0].split(' ')[0], 0, -18); } c.restore(); });
@@ -29257,7 +29257,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   window.SGLEFTSTACK = { layout:layout, LP:LP };
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('leftstack: ' + e); } })();
 </script>
-<script id="sg-leftstack2-js">
+<script type="text/plain" id="sg-leftstack2-js" data-retired="b54: wrote stale inline top on #sg-tl; hudwin4 owns the left column">
 /*SG_LEFTSTACK2: stable left column. Top-down: hull/energy -> party invite -> party cards -> comm box (chat+channels). Bottom-up: cargo -> materials. Hysteresis on every decision; DOM written only when a value changes; player card trimmed to hull/energy/hearts when the column is short.*/
 (function(){ 'use strict'; try {
   var $ = function(s){ return document.querySelector(s); }, G = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
@@ -30522,7 +30522,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('img: '+e); } })();
 </script>
 <script id="sg-v49-js">try{ if(window.SGVER){ SGVER.v='0.3.23'; SGVER.build=49; } var b=document.getElementById('sg-build'); if(b) b.textContent='Alpha v0.3.23 \u00b7 b49'; if(window.SGVER&&Array.isArray(SGVER.LOG)) SGVER.LOG.unshift({ v:'0.3.23', b:49, k:'fix', t:'Market: shopping list below the quest window; hawker bubbles 7 s; shopper bubbles ~4.5 s' }); }catch(e){}</script>
-<script id="sg-hudwin3-js">
+<script type="text/plain" id="sg-hudwin3-js" data-retired="replaced by sg-hudwin4-js (b53)">
 /*SG_HUDWIN3: − on a window hides it (no in-place resizing); hidden windows become icon chips in a bar under the player card: 📦 cargo 🧰 materials 📋 quests 💬 chat ◎ radar. Materials stacks above cargo from the toolbar baseline.*/
 (function(){ 'use strict'; try {
   var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
@@ -30647,6 +30647,84 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
   }catch(e){ clearInterval(reg); } },500);
   try{ if(window.SGVER){ SGVER.v='0.4.2'; SGVER.build=52; } var b=document.getElementById('sg-build'); if(b) b.textContent='Alpha v0.4.2 \u00b7 b52'; if(window.SGVER&&Array.isArray(SGVER.LOG)) SGVER.LOG.unshift({ v:'0.4.2', b:52, k:'fix', t:'Stat window stale offset cleared (root of the HUD flicker); chat layout restored; cargo = stat width; the bank is a ship visiting station, market and math' }); }catch(e){}
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('bankship: '+e); } })();
+</script>
+<script id="sg-hudwin4-js">
+/*SG_HUDWIN4: the left-column window manager, rebuilt. ONE writer. Chip bar under the stat window (width = stat window): cargo, materials, quests, chat, bottom toolbar, radar. Minimize (the − on each window) = hide + chip. Materials sits above cargo via CSS variables (no per-tick inline geometry). Chat layout rules live here. Every step is try/caught and reported by /hudwin.*/
+(function(){ 'use strict'; try {
+  var KEY = 'sg_hudwin4', H = window.SGHUDWIN = { W:{ bl:1, inv:1, qw:1, comm:1, tb:1, radar:1 }, err:[], last:{}, ticks:0 };
+  try { var d = JSON.parse(localStorage.getItem(KEY) || 'null'); if (d && typeof d === 'object') Object.keys(H.W).forEach(function(k){ if (k in d) H.W[k] = d[k] ? 1 : 0; }); } catch(e){}
+  var save = function(){ try { localStorage.setItem(KEY, JSON.stringify(H.W)); } catch(e){} };
+  var oops = function(w, e){ H.err.push(w + ': ' + (e && e.message || e)); if (H.err.length > 12) H.err.shift(); };
+  var css = document.createElement('style'); css.textContent = [
+    'body.hw-nobl #sg-bl,body.hw-noinv #sg-inv2,body.hw-noqw #sg-qw,body.hw-noqw #sg-qd,body.hw-nocomm #sg-comm{display:none!important}',
+    'body.hw-notb #toolbar{transform:translateY(130%)!important;pointer-events:none!important;opacity:0!important;transition:transform .25s,opacity .25s}',
+    '#sg-comm.sgc-open .sgc-body{display:flex!important;flex-direction:column!important;height:190px!important;max-height:40vh!important;min-height:0!important;overflow:hidden!important}#sg-comm.sgc-open .sgc-body>*{flex:1 1 auto!important;min-height:0!important}',
+    '#sg-hwbar{position:fixed;z-index:12;display:none;height:24px;box-sizing:border-box;background:rgba(6,14,12,.86);border:1px solid rgba(109,255,176,.45);font:700 10px Orbitron,sans-serif;color:#8fd9b4;overflow:hidden}',
+    '#sg-hwbar.on{display:flex}#sg-hwbar .c{flex:1;display:flex;align-items:center;justify-content:center;cursor:pointer;border-right:1px solid rgba(109,255,176,.2);font-size:13px;line-height:1}#sg-hwbar .c:last-child{border-right:0}#sg-hwbar .c.off{opacity:.3}#sg-hwbar .c:hover{background:rgba(109,255,176,.14)}#sg-hwbar .c svg{width:14px;height:14px;display:block}',
+    '.sg-hwmin{position:fixed;z-index:13;width:16px;height:14px;line-height:12px;text-align:center;cursor:pointer;font:700 12px monospace;color:#8fd9b4;background:rgba(6,14,12,.9);border:1px solid rgba(109,255,176,.45);display:none}.sg-hwmin.on{display:block}.sg-hwmin:hover{color:#6dffb0;border-color:#6dffb0}',
+    '#sg-inv2{position:fixed!important;left:var(--hw-l,10px)!important;width:var(--hw-w,232px)!important;bottom:var(--hw-invb,100px)!important;top:auto!important;right:auto!important;margin:0!important;max-height:30vh;overflow:auto}',
+    '#sg-comm .sgc-body #sg-chat{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;width:100%!important;max-width:none!important}#sg-comm.sgc-chan .sgc-body #sg-chat{display:none!important}',
+    '#sg-comm #sg-chat .cl{flex:1 1 auto!important;min-height:0!important;height:auto!important;max-height:none!important;overflow-y:auto!important;width:100%!important}#sg-comm #sg-chat .m{white-space:normal!important;text-overflow:clip!important;overflow:visible!important;word-break:break-word}#sg-comm #sg-chat input{flex:0 0 auto!important;display:block!important;width:100%!important;box-sizing:border-box;margin-top:3px}'
+  ].join(''); document.head.appendChild(css);
+  var RADAR = '<svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.5" fill="none" stroke="#6dffb0" stroke-width="1.2"/><circle cx="8" cy="8" r="3" fill="none" stroke="#6dffb0" stroke-width="1"/><line x1="8" y1="8" x2="13" y2="4" stroke="#6dffb0" stroke-width="1.2"/><circle cx="5" cy="10" r="1.2" fill="#ffb347"/></svg>';
+  var CH = [['bl', '\ud83d\udce6', 'Kargo \u00b7 cargo'], ['inv', '\ud83e\uddf0', 'Malzeme \u00b7 materials'], ['qw', '\ud83d\udccb', 'G\u00f6revler \u00b7 quests'], ['comm', '\ud83d\udcac', 'Sohbet \u00b7 chat'], ['tb', '\u2630', 'Alt \u00e7ubuk \u00b7 bottom toolbar'], ['radar', 'RADAR', 'Radar']];
+  var bar = document.createElement('div'); bar.id = 'sg-hwbar'; bar.innerHTML = CH.map(function(c){ return '<div class="c" data-k="' + c[0] + '" title="' + c[2] + '">' + (c[1] === 'RADAR' ? RADAR : c[1]) + '</div>'; }).join(''); document.body.appendChild(bar);
+  bar.addEventListener('click', function(e){ var c = e.target.closest('[data-k]'); if (!c) return; var k = c.dataset.k; H.W[k] = H.W[k] ? 0 : 1; save(); tick(); });
+  var MIN = {}; [['bl', 'sg-bl'], ['inv', 'sg-inv2'], ['qw', 'sg-qw']].forEach(function(q){ var b = document.createElement('div'); b.className = 'sg-hwmin'; b.id = 'sg-hwmin-' + q[0]; b.textContent = '\u2212'; b.title = 'K\u00fc\u00e7\u00fclt \u00b7 minimize (reopen from the bar)'; b.addEventListener('click', function(){ H.W[q[0]] = 0; save(); tick(); }); document.body.appendChild(b); MIN[q[0]] = { el:b, id:q[1] }; });
+  var g = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
+  var playing = function(){ try { var S = g('S'), I = g('INT'); return !!(S && S.on && S.state === 'play' && I && !I.id) && !document.body.classList.contains('sg-classic'); } catch(e){ return false; } };
+  var set = function(el, k, v){ var kk = (el.id || el.className) + '|' + k; if (H.last[kk] === v) return; H.last[kk] = v; el.style[k] = v; };
+  var cssv = function(k, v){ if (H.last['v' + k] === v) return; H.last['v' + k] = v; document.documentElement.style.setProperty(k, v); };
+  var rect = function(id){ var el = document.getElementById(id); if (!el) return null; var r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 ? r : null; };
+  function tick(){ H.ticks++;
+    var on = playing(); bar.classList.toggle('on', on); if (!on){ Object.keys(MIN).forEach(function(k){ MIN[k].el.classList.remove('on'); }); return; }
+    try { var tl = document.getElementById('sg-tl'); if (tl){ var tr = tl.getBoundingClientRect(); if (tr.top < -40 || tr.top > innerHeight*.6){ ['top', 'left', 'transform', 'position', 'bottom'].forEach(function(p){ tl.style.removeProperty(p); }); H.sanitized = (H.sanitized | 0) + 1; } } } catch(e){ oops('sanitize', e); }
+    try { Object.keys(H.W).forEach(function(k){ document.body.classList.toggle('hw-no' + k, !H.W[k]); }); Array.prototype.forEach.call(bar.children, function(c){ c.classList.toggle('off', !H.W[c.dataset.k]); }); } catch(e){ oops('classes', e); }
+    var tr2 = rect('sg-tl'), bd = rect('board'), L = 10, Wd = 232, T = 250;
+    try { if (tr2 && tr2.top >= -40 && tr2.top < innerHeight*.6){ L = Math.round(tr2.left); Wd = Math.round(tr2.width); T = Math.round(tr2.bottom + 4); } else if (bd){ T = Math.round(bd.top + 215); } set(bar, 'left', L + 'px'); set(bar, 'width', Wd + 'px'); set(bar, 'top', T + 'px'); cssv('--hw-l', L + 'px'); cssv('--hw-w', Wd + 'px'); } catch(e){ oops('bar', e); }
+    try { var cm = document.getElementById('sg-comm'); if (cm){ set(cm, 'left', L + 'px'); set(cm, 'width', Wd + 'px'); set(cm, 'top', (T + 28) + 'px'); } } catch(e){ oops('comm', e); }
+    try { var tbr = rect('toolbar'), base = tbr ? Math.round(innerHeight - tbr.top) : 6, br = H.W.bl ? rect('sg-bl') : null; cssv('--hw-invb', (br ? Math.round(innerHeight - br.top + 2) : base + 2) + 'px'); } catch(e){ oops('inv', e); }
+    try { Object.keys(MIN).forEach(function(k){ var m = MIN[k], r = H.W[k] ? rect(m.id) : null; if (!r){ m.el.classList.remove('on'); return; } m.el.classList.add('on'); set(m.el, 'left', Math.round(r.right - 18) + 'px'); set(m.el, 'top', Math.round(r.top + 2) + 'px'); }); } catch(e){ oops('min', e); }
+  }
+  setInterval(function(){ try { tick(); } catch(e){ oops('tick', e); } }, 400);
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG, A = window.SGAPI; if (!E || !E.cmd || !A || !A.run){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    var was = E.role; try { E.role = 'admin'; A.run("(function(){ if (typeof sgDrawMini !== 'function' || sgDrawMini.__hw4) return 'skip'; var _m = sgDrawMini; sgDrawMini = function(c){ try { var W = window.SGHUDWIN; if (W && W.W && !W.W.radar) return; } catch(e){} return _m.apply(this, arguments); }; sgDrawMini.__hw4 = 1; return 'ok'; })()"); } catch(e){ oops('radar', e); } finally { E.role = was; }
+    E.cmd('hudwin', { h:'window bar: /hudwin | reset', admin:true, run:function(a){ var x = Array.isArray(a) ? a[0] : a; if (x === 'reset'){ Object.keys(H.W).forEach(function(k){ H.W[k] = 1; }); save(); tick(); return 'All windows shown.'; } var r = rect('sg-tl'), b = bar.getBoundingClientRect(); return 'ticks ' + H.ticks + ' \u00b7 bar ' + (bar.classList.contains('on') ? Math.round(b.left) + ',' + Math.round(b.top) + ' ' + Math.round(b.width) + 'w' : 'hidden') + ' \u00b7 tl ' + (r ? Math.round(r.left) + ',' + Math.round(r.top) + ' ' + Math.round(r.width) + 'x' + Math.round(r.height) : 'none') + ' \u00b7 sanitized ' + (H.sanitized | 0) + ' \u00b7 open ' + Object.keys(H.W).filter(function(k){ return H.W[k]; }).join(',') + ' \u00b7 inv2 ' + (document.getElementById('sg-inv2') ? 'found' : 'MISSING') + ' \u00b7 comm ' + (document.getElementById('sg-comm') ? 'found' : 'MISSING') + ' \u00b7 toolbar ' + (function(){ var t = document.getElementById('toolbar'); if (!t) return 'none'; var r = t.getBoundingClientRect(), cs = getComputedStyle(t); return Math.round(r.top) + 'y ' + Math.round(r.height) + 'h disp=' + cs.display + ' inline=' + (t.style.display || '-') + ' tf=' + (cs.transform === 'none' ? '-' : 'yes'); })() + (H.err.length ? ' \u00b7 ERR ' + H.err.join(' | ') : ' \u00b7 no errors'); } });
+  } catch(e){ oops('reg', e); clearInterval(reg); } }, 500);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('hudwin4: ' + e); } })();
+</script>
+<script id="sg-wordcard3-js">
+/*SG_WORDCARD3: the word card (#sg-bc / #sg-lex) shows only the word and its definition. Active power-up lines (name + timer) inside it are hidden the moment they appear (MutationObserver, no timers). Buffs stay on the ship card. Also removes the news read-aloud controls (speaker icons + READ ALL) — the voice stays for buttons and words.*/
+(function(){ 'use strict'; try {
+  var g = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
+  var st = document.createElement('style'); st.textContent = '#sg-bc{display:flex!important;flex-direction:column!important;max-height:170px;overflow:hidden}#sg-bc .sg-pwhide,#sg-bc>.sg-chip,#sg-bc>span.sg-chip,#sg-lex>.sg-chip{display:none!important}'; document.head.appendChild(st);
+  var names = null, nameT = 0;
+  function pwNames(){ var now = Date.now(); if (names && now - nameT < 5000) return names; nameT = now; var out = []; try { var PW = g('PW'); if (PW) Object.keys(PW).forEach(function(k){ var p = PW[k]; if (p && p.tr) out.push(String(p.tr).toLowerCase()); if (p && p.en) out.push(String(p.en).toLowerCase()); if (p && p.ic) out.push(String(p.ic)); out.push(k.toLowerCase()); }); } catch(e){} names = out.filter(function(x){ return x && x.length > 1; }); return names; }
+  function isPw(t){ var low = t.toLowerCase(); if (!/\d/.test(t)) return false; var L = pwNames(); for (var i = 0; i < L.length; i++){ if (low.indexOf(L[i]) >= 0) return true; } return /\b\d+\s*s\b|\u00d7\s*\d|x\d/.test(low); }
+  function sweep(){ try { var box = document.getElementById('sg-bc'); if (!box) return; var all = box.querySelectorAll('*'); for (var i = 0; i < all.length; i++){ var el = all[i]; if (el.children.length) continue; var t = (el.textContent || '').trim(); if (t.length < 2) continue; if (el.classList.contains('sg-lb')) continue; el.classList.toggle('sg-pwhide', isPw(t)); } } catch(e){} }
+  var armed = false, tries = 0, reg = setInterval(function(){ var box = document.getElementById('sg-bc'); if (!box){ if (++tries > 200) clearInterval(reg); return; } clearInterval(reg); try { new MutationObserver(sweep).observe(box, { childList:true, subtree:true, characterData:true }); armed = true; sweep(); } catch(e){} }, 400);
+  // news read-aloud controls out
+  var SPK = /^(\ud83d\udd0a|\ud83d\udd09|\ud83d\udd08)\s*$/, RA = /HEPS\u0130N\u0130 OKU|READ ALL IN TURKISH|READ ALL/i;
+  function stripNews(root){ try { var all = root.querySelectorAll('*'); for (var i = 0; i < all.length; i++){ var el = all[i]; if (el.children.length > 1) continue; var t = (el.textContent || '').trim(); if (SPK.test(t) || (RA.test(t) && t.length < 60)) el.remove(); } } catch(e){} }
+  function newsRoot(){ return document.getElementById('sg-news') || document.getElementById('sg-nw'); }
+  try { new MutationObserver(function(ms){ var r = newsRoot(); if (r) stripNews(r); }).observe(document.body, { childList:true, subtree:true }); } catch(e){}
+  setInterval(function(){ var r = newsRoot(); if (r) stripNews(r); }, 1500);
+  window.SGWORDCARD3 = { sweep:sweep, armed:function(){ return armed; }, names:pwNames };
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('wordcard3: ' + e); } })();
+</script>
+<script id="sg-ver53-js">
+(function(){ try { var V = window.SGVER; if (V && typeof V === 'object'){ V.v = '0.4.3'; V.build = 53; V.str = 'v0.4.3 \u00b7 b53'; if (Array.isArray(V.log)) V.log.unshift({ v:'0.4.3', b:53, t:'HUD window bar rebuilt as one writer (hudwin4); stale stat-window geometry sanitized; chat layout rules restored; word card shows only the definition; news read-aloud removed; station arms reach the rooms' }); } var t = setInterval(function(){ var s = document.getElementById('sg-build'); if (s){ s.textContent = 'Alpha v0.4.3 \u00b7 b53'; clearInterval(t); } }, 500); setTimeout(function(){ clearInterval(t); }, 20000); } catch(e){} })();
+</script>
+<script id="sg-stationprobe-js">
+/*SG_STATIONPROBE: /station2 prints, for each room, the angle the ROOM is drawn at (from doorXY) vs the angle doorAng() reports, so the ring/arms/rooms mismatch is measured, not guessed. Also lists the current ring-rotation source line.*/
+(function(){ 'use strict'; try {
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG, A = window.SGAPI; if (!E || !E.cmd || !A || !A.run){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('station2', { h:'station alignment probe: room angle (doorXY) vs doorAng per door', admin:true, run:function(){ var was = E.role, r; try { E.role = 'admin'; r = A.run("(function(){ try { var cx = S.W/2, cy = S.H/2, o = []; DOORS.forEach(function(d){ var p = doorXY(d), a = Math.atan2(p.y - cy, p.x - cx), b = doorAng(d), dd = Math.atan2(Math.sin(a - b), Math.cos(a - b)); o.push(d.id + ': room ' + (a*57.3).toFixed(1) + '\u00b0 doorAng ' + (b*57.3).toFixed(1) + '\u00b0 diff ' + (dd*57.3).toFixed(1) + '\u00b0 R ' + Math.hypot(p.x - cx, p.y - cy).toFixed(0)); }); var src = String(stDraw).match(/c\\.rotate\\(([^;]{0,80})\\); c\\.strokeStyle = '#2c3340'/); o.push('ring rotate: ' + (src ? src[1] : 'not found')); o.push('doorXY src: ' + String(doorXY).slice(0, 160).replace(/\\s+/g, ' ')); return o.join('\\n'); } catch(e){ return 'probe error: ' + e; } })()"); } catch(e){ r = 'error: ' + e; } finally { E.role = was; } try { (window.SGX = window.SGX || { err:[] }).err.push('station2: ' + String(r).replace(/\n/g, ' | ')); } catch(e){} return String(r); } });
+  } catch(e){ clearInterval(reg); } }, 500);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('stationprobe: ' + e); } })();
+</script>
+<script id="sg-ver54-js">
+(function(){ try { var V = window.SGVER; if (V && typeof V === 'object'){ V.v = '0.4.5'; V.build = 55; V.str = 'v0.4.5 \u00b7 b55'; if (Array.isArray(V.log)) V.log.unshift({ v:'0.4.5', b:55, t:'window bar + minimize buttons hidden on pause; power-up chips suppressed on the word card at the CSS level; station ring re-aimed to the rooms via the canvas transform; toolbar slides away and back; chat body fixed-height flex; leftstack2 retired' }); } var t = setInterval(function(){ var s = document.getElementById('sg-build'); if (s){ s.textContent = 'Alpha v0.4.5 \u00b7 b55'; clearInterval(t); } }, 500); setTimeout(function(){ clearInterval(t); }, 20000); } catch(e){} })();
 </script>
 <!-- EM:END -->
 <script type="text/plain" id="sg-paintlocks-tail">
