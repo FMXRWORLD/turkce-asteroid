@@ -31279,7 +31279,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 <script id="sg-build-js">
 /*SG_BUILD: the ONE place the version lives. Bump V and B here; everything else (stamp, /version, Guide, News) reads SGVER which is re-pointed at this object. Earlier bump scripts changed values a locked getter had already captured — hence the stale stamp.*/
 (function(){ 'use strict'; try {
-  var V='0.8.9', B=99, LABEL='Alpha v'+V+' \u00b7 b'+B;
+  var V='0.8.10', B=100, LABEL='Alpha v'+V+' \u00b7 b'+B;
   var BU=window.SGBUILD={ v:V, build:B, label:LABEL, str:function(){ return 'v'+V+' \u00b7 b'+B; }, fixes:0, mode:'' };
   function repoint(){ try{ var S=window.SGVER; if(!S){ window.SGVER={ v:V, build:B, LOG:[], str:function(){ return BU.str(); } }; BU.mode='created'; return; } var ok=true; ['v','build','str'].forEach(function(k){ try{ Object.defineProperty(S,k,{ configurable:true, enumerable:true, get:function(){ return k==='v'?V:k==='build'?B:function(){ return BU.str(); }; }, set:function(){} }); }catch(e){ ok=false; } }); BU.mode=ok?'repointed':'partial'; if(!ok){ try{ var NS={}; Object.keys(S).forEach(function(k){ if(['v','build','str'].indexOf(k)<0) NS[k]=S[k]; }); NS.v=V; NS.build=B; NS.str=function(){ return BU.str(); }; NS.LOG=S.LOG||[]; window.SGVER=NS; BU.mode='replaced'; }catch(e2){} } }catch(e){} }
   repoint();
@@ -33635,6 +33635,42 @@ var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd)
     try{ var D=window.SGDOCS&&SGDOCS.rows; if(D&&typeof D.push==='function'){ D.push(['bahcivan','/bahcivan status|start|next|reset','Old Harbor story: the seed, the sapling, the Gardener\u2019s root quiz (admin)'],['santiye','/santiye | spawn | clear','construction crews at the harbour (admin)']); } }catch(e){}
   }catch(e){ clearInterval(reg); } },600);
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('docs9: '+e); } })();
+</script>
+<script id="sg-mobile6-js">
+/*SG_MOBILE6: touch layout nudges — definition bar up (clear of the joystick), PULL down toward the radar, joystick ring lower, stat mirror a little down from the top, score card a little in from the right. Plus: the companion-chassis card shows only while the Bot Factory is actually open (it was keyed to the co-pilot's mini canvas, which is visible in flight).*/
+(function(){ 'use strict'; try {
+  var B='env(safe-area-inset-bottom)';
+  var css=document.createElement('style'); css.id='sg-mobile6-css'; css.textContent=[
+    /* definition / discovery bar: lift above the control zone, keep it readable */
+    'body.tch.sg-on:not(.sg-menu) #sg-bc{display:block!important;bottom:calc(232px + '+B+')!important;max-width:min(62vw,440px)!important;left:50%!important;transform:translateX(-50%)!important;z-index:9!important}',
+    'body.tch.sg-on:not(.sg-menu) #sg-lex{display:block!important}',
+    /* control arc around the radar (centre 70,70): FIRE 180° · PULL 135° · POWER 90° */
+    'body.tch #tb-fire{right:128px!important;bottom:calc(28px + '+B+')!important;width:84px!important;height:84px!important}',
+    'body.tch #tb-pull{right:111px!important;bottom:calc(111px + '+B+')!important;width:66px!important;height:66px!important}',
+    'body.tch #tb-pow{right:42px!important;bottom:calc(142px + '+B+')!important;width:56px!important;height:56px!important}',
+    'body.tch #sg-pchev{right:50px!important;bottom:calc(204px + '+B+')!important}',
+    'body.tch #sg-pbar{bottom:calc(236px + '+B+')!important}',
+    'body.tch #sg-comm.mc-open{bottom:calc(296px + '+B+')!important}',
+    /* joystick ring + hit zone lower */
+    'body.tch #sg-joy{left:14px!important;bottom:calc(14px + '+B+')!important}',
+    'body.tch #tch-j{bottom:calc(6px + '+B+')!important}',
+    /* stat mirror a little down; score card a little in */
+    'body.tch #sg-mtl{top:62px!important}',
+    'body.tch #sg-tr{right:88px!important;top:8px!important}',
+    /* chassis card only inside the factory */
+    '.chs-gate-hide{display:none!important}'
+  ].join(''); document.head.appendChild(css);
+  var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
+  function factoryOpen(){ try{ var I=g('INT'); if(I&&I.id==='botlab') return true; var B2=window.SGBOT; if(B2&&typeof B2.isOpen==='function'&&B2.isOpen()) return true; var els=document.querySelectorAll('[id^=sgbot]'); for(var i=0;i<els.length;i++){ var e=els[i]; if((e.classList.contains('open')||e.classList.contains('on'))&&e.offsetWidth>240&&e.offsetHeight>160) return true; } }catch(e){} return false; }
+  function cards(){ var out=[]; document.querySelectorAll('[id^=sg-chs],[id^=sg-fdk],[id^=sg-chassis]').forEach(function(e){ out.push(e); }); var cv=document.getElementById('chs-c'); if(cv){ var p=cv.parentElement, n=0; while(p&&n++<6){ if(p.id&&out.indexOf(p)<0){ out.push(p); break; } p=p.parentElement; } } return out; }
+  var G=window.SGCHSGATE={ hidden:0, open:false };
+  setInterval(function(){ try{ var open=factoryOpen(); G.open=open; cards().forEach(function(e){ var want=!open; if(want!==e.classList.contains('chs-gate-hide')){ e.classList.toggle('chs-gate-hide',want); if(want) G.hidden++; } }); }catch(e){} },400);
+  var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg); E.cmd('chassiscard',{ h:'companion chassis card gate: /chassiscard', admin:true, run:function(){ return 'factory open '+G.open+' · cards '+cards().map(function(e){ return '#'+e.id+(e.classList.contains('chs-gate-hide')?'(hidden)':''); }).join(', ')+' · hides '+G.hidden; } }); }catch(e){ clearInterval(reg); } },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('mobile6: '+e); } })();
+</script>
+<script id="sg-docs10-js">
+/*SG_DOCS10: b100 notes.*/
+(function(){ try { var t=setInterval(function(){ var V=window.SGVER; if(!V||!Array.isArray(V.LOG)) return; clearInterval(t); try{ var b=document.getElementById('sg-build'); if(b) b.textContent='Alpha v0.8.10 · b100'; }catch(e){} V.LOG.unshift({ v:'0.8.10', b:100, k:'fix', t:'Touch layout: definition bar lifted above the controls, PULL pulled in toward the radar, joystick ring lower, stat card a little down, score card a little in; companion-chassis card shows only inside the Bot Factory (it was keyed to the co-pilot mini canvas, visible in flight)' }); },600); } catch(e){} })();
 </script>
 <!-- EM:END -->
 <script type="text/plain" data-retired="truncated star-template core; rebuilt as sg-stellar-js" id="sg-star-js">
