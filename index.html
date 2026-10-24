@@ -801,7 +801,7 @@
 .sg-pause{animation:none}
 @media(max-width:700px){#sg-tr{right:60px}#sg-tc{display:none}}
 </style>
-<style id="sg-curtain-css">html::before{content:'Kelime Ku\015fa\011f\0131 \00b7 B\00fcy\00fck Kelime K\00fct\00fcphanesi\2019ni yeniden kur \00b7 y\00fckleniyor \00b7 loading';position:fixed;inset:0;z-index:2147483600;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding-top:14vh;font:600 12px 'Share Tech Mono',monospace;letter-spacing:2px;color:#8fd9b4;text-align:center;background:linear-gradient(90deg,#6dffb0,#ffd76a) no-repeat 50% 61%/40px 3px,radial-gradient(ellipse at 50% 40%,#13203a 0%,#070b14 55%,#04060b 100%);animation:sgBootBar 1.5s ease-in-out infinite;transition:opacity .55s}html::after{content:'T\00dcRK\00c7E ASTEROID';position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);z-index:2147483601;font:900 clamp(24px,4.6vw,48px) Orbitron,'Share Tech Mono',monospace;letter-spacing:6px;color:#ffd76a;text-shadow:0 0 26px rgba(255,215,106,.55);white-space:nowrap;transition:opacity .55s}@keyframes sgBootBar{0%,100%{background-size:40px 3px,100% 100%}50%{background-size:240px 3px,100% 100%}}html.sg-booted::before,html.sg-booted::after{opacity:0;pointer-events:none}html.sg-booted2::before,html.sg-booted2::after{display:none}</style></head>
+<style id="sg-curtain-css">html::before{content:'Kelime Ku\015fa\011f\0131 \00b7 B\00fcy\00fck Kelime K\00fct\00fcphanesi\2019ni yeniden kur \00b7 y\00fckleniyor \00b7 loading';position:fixed;inset:0;z-index:2147483600;display:flex;align-items:center;justify-content:center;box-sizing:border-box;padding-top:14vh;font:600 12px 'Share Tech Mono',monospace;letter-spacing:2px;color:#8fd9b4;text-align:center;background:linear-gradient(90deg,#6dffb0,#ffd76a) no-repeat 50% 61%/40px 3px,radial-gradient(ellipse at 50% 40%,#13203a 0%,#070b14 55%,#04060b 100%);animation:sgBootBar 1.5s ease-in-out infinite;transition:opacity .55s}html::after{content:'T\00dcRK\00c7E ASTEROID';position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);z-index:2147483601;font:900 clamp(24px,4.6vw,48px) Orbitron,'Share Tech Mono',monospace;letter-spacing:6px;color:#ffd76a;text-shadow:0 0 26px rgba(255,215,106,.55);white-space:nowrap;transition:opacity .55s}@keyframes sgBootBar{0%,100%{background-size:40px 3px,100% 100%}50%{background-size:240px 3px,100% 100%}}html.sg-booted::before,html.sg-booted::after{opacity:0;pointer-events:none}html.sg-booted2::before,html.sg-booted2::after{display:none}</style><script>/*SG_OBSBRAKE: any MutationObserver firing >300x in 1s is disconnected (runaway observer = freeze on load)*/(function(){try{var O=window.MutationObserver;if(!O||O.__brake)return;var W=function(cb){var n=0,t0=0;return new O(function(m,ob){var now=Date.now();if(now-t0>1000){t0=now;n=0;}if(++n>300){try{ob.disconnect();}catch(e){}try{(window.SGX=window.SGX||{err:[]}).err.push('obsbrake: runaway observer disconnected');}catch(e){}return;}return cb.call(this,m,ob);});};W.prototype=O.prototype;W.__brake=1;window.MutationObserver=W;}catch(e){}})();</script><script>/*SG_TU2KILL: neutralise the b105 touch-UI v2 (strips its body class, removes its elements, clears its saved state) until it is rebuilt*/(function(){try{try{localStorage.removeItem('sg_touchui');}catch(e){}function k(){try{var b=document.body;if(!b)return;if(b.classList.contains('tu2'))b.classList.remove('tu2');['tu-on','tu-side','tu-chat','tu-noradar','tu-barup'].forEach(function(c){if(b.classList.contains(c))b.classList.remove(c);});['sg-tu','sg-tucol','sg-turad','sg-tu2','sg-tu2col','sg-tu2rad'].forEach(function(id){var e=document.getElementById(id);if(e&&e.parentNode)e.parentNode.removeChild(e);});}catch(e){}}setInterval(k,200);document.addEventListener('DOMContentLoaded',k);window.SGTU2KILL=1;}catch(e){}})();</script></head>
 <script id="sg-shim-js">
 (function(){ try {
   var NET = window.__sgNet = []; var push = function(x){ if (NET.length < 40) NET.push(x); };
@@ -33889,7 +33889,7 @@ var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd)
 /*SG_DOCS13: b103 notes.*/
 (function(){ try { var t=setInterval(function(){ var V=window.SGVER; if(!V||!Array.isArray(V.LOG)) return; clearInterval(t); try{ var b=document.getElementById('sg-build'); if(b) b.textContent='Alpha v0.8.13 · b103'; }catch(e){} V.LOG.unshift({ v:'0.8.13', b:103, k:'new', t:'Security: server-side save validation (bounded deltas; clamped saves pulled back; /savecheck) and realtime identity binding (eid↔account; spoofed packets dropped; /eidbind). Learning: pronunciation stars + letter-group hints on every recognised word, weakest sounds in /pron, weights the review queue. Social: /spectate Name follows a friend\u2019s ship. Mobile: haptics on damage/pickup/kill.' }); try{ var D=window.SGDOCS&&SGDOCS.rows; if(D&&D.push) D.push(['savecheck','/savecheck','server save validation status (admin)'],['eidbind','/eidbind','realtime identity binding status (admin)'],['pron','/pron | on|off | reset','pronunciation stars and weakest sounds'],['spectate','/spectate Name | off','watch a friend\u2019s ship']); }catch(e){} },600); } catch(e){} })();
 </script>
-<script id="sg-touchui-js">
+<script type="text/plain" id="sg-touchui-retired" data-retired="b105: replaced by sg-touchui2">
 /*SG_TOUCHUI: ONE owner for the touch layout (replaces mobile4/5/6/7 + mobilechat). Stat mirror (hull/hearts/energy; hearts copied when S.hull changes), icon bar (chat/cargo/materials/quests/radar/side), right column (☰ above ⚙, zoom), radar bottom-right with FIRE/PULL/POWER on an arc (fold to a corner when the radar is hidden), chevron above the command bar when open, materials/quests/chat docked, everything hidden in interiors/menu. Taps are captured at the WINDOW level so the board's capture handler never wins. Zoom = board transform scale (works with no game zoom API).*/
 (function(){ 'use strict'; try {
   var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
@@ -33947,6 +33947,148 @@ var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd)
 <script id="sg-docs14-js">
 /*SG_DOCS14: b104 notes.*/
 (function(){ try { var t=setInterval(function(){ var V=window.SGVER; if(!V||!Array.isArray(V.LOG)) return; clearInterval(t); try{ var b=document.getElementById('sg-build'); if(b) b.textContent='Alpha v0.8.14 · b104'; }catch(e){} V.LOG.unshift({ v:'0.8.14', b:104, k:'fix', t:'Touch UI rebuilt as one module (replaces mobile4/5/6/7 + mobilechat): taps captured at window level (bar always wins, even over marvels), hearts mirrored on hull change, HUD hidden in hangar/menus, FIRE/PULL/POWER fold when the radar is hidden, zoom = board scale (works everywhere), FIRE nudged left, quests + chat visible and docked, chat has one state (no flicker), score card wraps, side chips light when open, ▴ chevron rises above the open command bar' }); try{ var D=window.SGDOCS&&SGDOCS.rows; if(D&&D.push) D.push(['touchui','/touchui | reset | probe','touch layout owner: state, zoom, element rects (admin)']); }catch(e){} },600); } catch(e){} })();
+</script>
+<script type="text/plain" data-retired="b106 freeze suspect" id="sg-urlfix-js">
+/*SG_URLFIX: collapse doubled /rest/v1/rest/v1/ in any request (eid_bindings 404)*/
+(function(){ 'use strict'; try { var of=window.fetch; if(!of||of.__urlfix) return; var fix=function(u){ try{ if(typeof u==='string') return u.replace(/(\/rest\/v1)(?:\/rest\/v1)+\//g,'$1/'); if(u&&typeof u.url==='string'&&/\/rest\/v1\/rest\/v1\//.test(u.url)) return new Request(u.url.replace(/(\/rest\/v1)(?:\/rest\/v1)+\//g,'$1/'),u); }catch(e){} return u; }; var w=function(u,o){ return of.call(this,fix(u),o); }; w.__urlfix=1; window.fetch=w; } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('urlfix: '+e); } })();
+</script>
+<style id="sg-tu2-css">
+/* SG_TOUCHUI2 styles — active only while body has .tch.tu2 (touch + in flight). EDIT ME: positions are plain px. */
+body.tch.tu2{--tu2-top:60px;--tu2-cardw:200px;--tu2-barb:0px;--tu2-invb:0px;--tu2-zoom:1}
+body.tch.tu2 #sg-tl{position:absolute!important;left:-9999px!important;top:0!important;visibility:hidden!important;pointer-events:none!important}
+body.tch.tu2 #sg-hwbar,body.tch.tu2 #tch-hint,body.tch.tu2 #tch-sm,body.tch.tu2 #tch-tray,body.tch.tu2 #sg-tu,body.tch.tu2 #sg-tucol,body.tch.tu2 #sg-turad,body.tch.tu2 #sg-mcol,body.tch.tu2 #sg-m4bar,body.tch.tu2 #sg-m4card,body.tch.tu2 #sg-m7zoom,body.tch.tu2 .tu2-hide{display:none!important}
+#sg-tu2c,#sg-tu2bar,#sg-tu2col,#sg-tu2rad{display:none}
+body.tch.tu2 #sg-tu2c{display:block;position:fixed;left:10px;top:var(--tu2-top);width:var(--tu2-cardw);z-index:62;background:rgba(10,10,14,.72);border:1px solid rgba(255,255,255,.18);border-radius:10px;padding:6px 10px;font-family:'Inter',sans-serif;color:#fff;font-size:12px;pointer-events:none}
+body.tch.tu2 #sg-tu2c .sg-lb{display:block;font-size:10px;text-transform:uppercase;letter-spacing:1.4px;opacity:.75}
+body.tch.tu2 #sg-tu2c .sg-h{font-size:15px;letter-spacing:1px;line-height:1.2}
+body.tch.tu2 #sg-tu2c .sg-bar{height:5px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:3px}body.tch.tu2 #sg-tu2c .sg-bar i{display:block;height:100%;background:linear-gradient(90deg,#6dffb0,#ffd76a)}
+body.tch.tu2 #sg-tu2bar{display:flex;position:fixed;left:10px;top:var(--tu2-barb);width:var(--tu2-cardw);height:30px;z-index:63;gap:3px;background:rgba(6,14,12,.9);border:1px solid rgba(109,255,176,.5);border-radius:8px;padding:2px;pointer-events:auto;touch-action:manipulation}
+.tu2-chip{flex:1;display:flex;align-items:center;justify-content:center;font-size:15px;line-height:1;border-radius:6px;color:#8fd9b4;opacity:.45;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent;user-select:none}
+.tu2-chip.on{opacity:1;background:rgba(109,255,176,.16);color:#fff}
+.tu2-chip.p{background:rgba(109,255,176,.42)}
+body.tch.tu2 #sg-tu2col{display:flex;flex-direction:column;gap:6px;position:fixed;right:12px;top:62px;width:46px;z-index:63;pointer-events:auto}
+body.tch.tu2:not(.tu2-side) #sg-tu2col{display:none}
+#sg-tu2col .tu2-chip{width:46px;height:40px;flex:none;border:1px solid rgba(109,255,176,.5);background:rgba(6,14,12,.9);opacity:1;color:#fff;font-size:17px}
+body.tch.tu2 #tch-top{right:12px!important;top:8px!important;z-index:64!important}
+body.tch.tu2 #sg-tr{right:66px!important;top:36px!important;width:150px!important;height:auto!important;max-height:80px;white-space:normal!important;text-align:right}
+body.tch.tu2 #sg-tr *{white-space:normal!important;text-overflow:clip!important}
+body.tch.tu2 #sg-qw{display:flex!important;position:fixed!important;right:66px!important;top:126px!important;width:200px!important;height:140px!important;z-index:60!important}
+body.tch.tu2 #sg-qd{display:none!important}
+body.tch.tu2:not(.tu2-qw) #sg-qw,body.tch.tu2.tu2-qw #sg-qd.on{display:none!important}
+body.tch.tu2 #sg-inv2{display:block!important;position:fixed!important;left:10px!important;top:var(--tu2-invb)!important;bottom:auto!important;width:var(--tu2-cardw)!important;max-height:170px!important;overflow:auto!important;z-index:61!important}
+body.tch.tu2:not(.tu2-inv) #sg-inv2{display:none!important}
+body.tch.tu2 #sg-bl{display:block!important;position:fixed!important;left:10px!important;top:auto!important;bottom:calc(166px + env(safe-area-inset-bottom))!important;width:var(--tu2-cardw)!important;max-height:84px!important;overflow:hidden!important;z-index:61!important}
+body.tch.tu2:not(.tu2-bl) #sg-bl{display:none!important}
+body.tch.tu2 #sg-tu2rad{display:block;position:fixed;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));width:140px;height:140px;z-index:17;pointer-events:none}
+body.tch.tu2:not(.tu2-radar) #sg-tu2rad{display:none}
+body.tch.tu2 #tb-fire{right:143px!important;bottom:calc(40px + env(safe-area-inset-bottom))!important;width:84px!important;height:84px!important}
+body.tch.tu2 #tb-pull{right:122px!important;bottom:calc(136px + env(safe-area-inset-bottom))!important;width:66px!important;height:66px!important}
+body.tch.tu2 #tb-pow{right:54px!important;bottom:calc(174px + env(safe-area-inset-bottom))!important;width:56px!important;height:56px!important}
+body.tch.tu2 #sg-pchev{right:62px!important;bottom:calc(240px + env(safe-area-inset-bottom))!important;z-index:21!important}
+body.tch.tu2 #sg-pbar{right:10px!important;left:auto!important;bottom:calc(272px + env(safe-area-inset-bottom))!important;max-width:calc(100vw - 20px)!important;z-index:20!important}
+body.tch.tu2:not(.tu2-radar) #tb-fire{right:12px!important;bottom:calc(12px + env(safe-area-inset-bottom))!important}
+body.tch.tu2:not(.tu2-radar) #tb-pull{right:104px!important;bottom:calc(20px + env(safe-area-inset-bottom))!important}
+body.tch.tu2:not(.tu2-radar) #tb-pow{right:24px!important;bottom:calc(104px + env(safe-area-inset-bottom))!important}
+body.tch.tu2:not(.tu2-radar) #sg-pchev{right:32px!important;bottom:calc(170px + env(safe-area-inset-bottom))!important}
+body.tch.tu2:not(.tu2-radar) #sg-pbar{bottom:calc(202px + env(safe-area-inset-bottom))!important}
+body.tch.tu2 #sg-bc{display:block!important;position:fixed!important;left:10px!important;right:auto!important;transform:none!important;bottom:calc(300px + env(safe-area-inset-bottom))!important;width:calc(100vw - 130px)!important;max-width:none!important;min-width:0!important;height:auto!important;max-height:64px;z-index:12!important;text-align:left!important}
+body.tch.tu2.tu2-chat #sg-bc{display:none!important}
+body.tch.tu2 #tch-j{bottom:calc(14px + env(safe-area-inset-bottom))!important}
+body.tch.tu2 #sg-joy{bottom:calc(16px + env(safe-area-inset-bottom))!important;left:14px!important}
+body.tch.tu2 #sg-bg,body.tch.tu2 #sg-ast,body.tch.tu2 #sg-fg{transform:scale(var(--tu2-zoom));transform-origin:50% 50%}
+@media (orientation:landscape) and (max-height:520px){
+ body.tch.tu2{--tu2-cardw:170px}
+ body.tch.tu2 #sg-tu2c{padding:4px 8px}body.tch.tu2 #sg-tu2c .sg-h{font-size:13px}
+ body.tch.tu2 #sg-tu2col{top:50px}body.tch.tu2 #tch-top{top:6px!important}
+ body.tch.tu2 #sg-tr{top:30px!important;width:120px!important}body.tch.tu2 #sg-qw{top:96px!important;height:100px!important;width:170px!important}
+ body.tch.tu2 #sg-tu2rad{width:110px;height:110px}
+ body.tch.tu2 #tb-fire{right:115px!important;bottom:calc(30px + env(safe-area-inset-bottom))!important;width:70px!important;height:70px!important}
+ body.tch.tu2 #tb-pull{right:100px!important;bottom:calc(108px + env(safe-area-inset-bottom))!important;width:54px!important;height:54px!important}
+ body.tch.tu2 #tb-pow{right:43px!important;bottom:calc(136px + env(safe-area-inset-bottom))!important;width:48px!important;height:48px!important}
+ body.tch.tu2 #sg-pchev{right:47px!important;bottom:calc(192px + env(safe-area-inset-bottom))!important}
+ body.tch.tu2 #sg-pbar{bottom:calc(224px + env(safe-area-inset-bottom))!important}
+ body.tch.tu2 #sg-bc{bottom:calc(200px + env(safe-area-inset-bottom))!important;width:calc(100vw - 230px)!important;max-height:40px}
+ body.tch.tu2 #sg-bl{bottom:calc(120px + env(safe-area-inset-bottom))!important;max-height:60px!important}
+}
+</style>
+<script type="text/plain" data-retired="b106: froze on load, re-ship in pieces" id="sg-touchui2-js">
+/*SG_TOUCHUI2 core: single owner of the touch HUD. State, stat mirror (re-copies on hull/energy change), icon bar + side column, capture-phase taps, paint.*/
+(function(){ 'use strict'; try {
+  var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
+  var KEY='sg_tu2', W={ chat:0, bl:1, inv:0, qw:1, radar:1, side:0, zoom:1 };
+  try{ var d=JSON.parse(localStorage.getItem(KEY)||'null'); if(d&&typeof d==='object'){ ['chat','bl','inv','qw','radar','side'].forEach(function(k){ if(k in d) W[k]=d[k]?1:0; }); if(isFinite(+d.zoom)) W.zoom=Math.max(.7,Math.min(1.4,+d.zoom)); } }catch(e){}
+  var save=function(){ try{ localStorage.setItem(KEY,JSON.stringify(W)); }catch(e){} };
+  var T=window.SGTOUCHUI2={ W:W, active:false, taps:0, copies:0, menuEl:null, save:save, err:[] };
+  var tch=function(){ return document.body.classList.contains('tch'); };
+  var active=function(){ try{ var S=g('S'), I=g('INT'), G=g('G'); return !!(tch()&&S&&S.on&&S.state!=='menu'&&I&&!I.id&&G&&!G.ph); }catch(e){ return false; } };
+  T.isActive=active;
+  // DOM
+  var card=document.createElement('div'); card.id='sg-tu2c'; document.body.appendChild(card);
+  var bar=document.createElement('div'); bar.id='sg-tu2bar'; bar.innerHTML='<div class="tu2-chip" data-k="chat" title="sohbet">\ud83d\udcac</div><div class="tu2-chip" data-k="bl" title="kargo">\ud83d\udce6</div><div class="tu2-chip" data-k="inv" title="malzeme">\ud83e\uddf0</div><div class="tu2-chip" data-k="qw" title="g\u00f6revler">\ud83d\udccb</div><div class="tu2-chip" data-k="radar" title="radar">\u25ce</div><div class="tu2-chip" data-k="side" title="men\u00fc">\u2630</div>'; document.body.appendChild(bar);
+  var col=document.createElement('div'); col.id='sg-tu2col'; col.innerHTML='<div class="tu2-chip" data-k="menu" title="oyun men\u00fcs\u00fc">\u2630</div><div class="tu2-chip" data-k="settings" title="ayarlar">\u2699</div><div class="tu2-chip" data-k="zin" title="yak\u0131nla\u015ft\u0131r">+</div><div class="tu2-chip" data-k="zout" title="uzakla\u015ft\u0131r">\u2212</div>'; document.body.appendChild(col);
+  // stat mirror: hull + hearts + energy rows copied from the game's #sg-tl whenever hull/energy/shield change
+  var lastKey='', lastT=0;
+  function mirror(force){ try{ var S=g('S'); if(!S) return; var src=document.getElementById('sg-tl'); if(!src) return; var key=[S.hull,S.maxHull,Math.round(S.en||0),S.pw&&S.pw.shield>0?1:0].join('|'); var now=Date.now(); if(!force&&key===lastKey&&now-lastT<2000) return; lastKey=key; lastT=now; var out=[]; var kids=src.children; for(var i=0;i<kids.length;i++){ var k=kids[i], t=(k.textContent||''), c=k.className||''; if(/ZIRH|HULL|ENERJ|ENERGY/i.test(t)||/sg-h\b|sg-bar/.test(c)){ if(/^YÖN|^HIZ|^YAKIN|cümle|öğrenildi/i.test(t.trim())) continue; out.push(k.outerHTML); } } if(out.length) card.innerHTML=out.join(''); T.copies++; }catch(e){ T.err.push('mirror:'+e); } }
+  // taps: window capture so the board's own touch handlers can't eat them
+  var pend=null, lastTap=0;
+  var chipAt=function(x,y){ var el=document.elementFromPoint(x,y); return el&&el.closest?el.closest('.tu2-chip'):null; };
+  function act(k){ var now=Date.now(); if(now-lastTap<250) return; lastTap=now; T.taps++;
+    try{
+      if(k==='menu'){ var m=T.menuEl; if(m&&m.isConnected){ m.click(); } else { var tb=document.getElementById('toolbar'); if(tb){ tb.classList.toggle('tu2-tbshow'); } } return; }
+      if(k==='settings'){ var b=document.getElementById('btn-settings'); if(b) b.click(); else try{ SGENG.run('settings'); }catch(e){} return; }
+      if(k==='zin'||k==='zout'){ W.zoom=Math.max(.7,Math.min(1.4,+(W.zoom+(k==='zin'?.1:-.1)).toFixed(2))); save(); paint(); return; }
+      if(k==='chat'){ W.chat=W.chat?0:1; save(); if(T.setChat) T.setChat(!!W.chat); paint(); return; }
+      if(k in W){ W[k]=W[k]?0:1; save(); paint(); }
+    }catch(e){ T.err.push('act:'+e); } }
+  window.addEventListener('pointerdown',function(e){ if(!T.active) return; var c=chipAt(e.clientX,e.clientY); if(!c) return; pend=c; c.classList.add('p'); e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); },true);
+  window.addEventListener('pointerup',function(e){ if(!pend) return; var c=pend; pend=null; c.classList.remove('p'); var at=chipAt(e.clientX,e.clientY); e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); if(at===c) act(c.dataset.k); },true);
+  window.addEventListener('pointercancel',function(){ if(pend){ pend.classList.remove('p'); pend=null; } },true);
+  window.addEventListener('click',function(e){ if(!T.active) return; var c=e.target&&e.target.closest?e.target.closest('.tu2-chip'):null; if(c){ e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation(); } },true);
+  // paint: body classes + dock variables
+  var B=document.body;
+  function paint(){ var on=active(); T.active=on; B.classList.toggle('tu2',on); if(!on){ ['tu2-chat','tu2-side','tu2-radar','tu2-inv','tu2-bl','tu2-qw','tu2-barup'].forEach(function(c){ B.classList.remove(c); }); return; }
+    B.classList.toggle('tu2-chat',!!W.chat); B.classList.toggle('tu2-side',!!W.side); B.classList.toggle('tu2-radar',!!W.radar); B.classList.toggle('tu2-inv',!!W.inv); B.classList.toggle('tu2-bl',!!W.bl); B.classList.toggle('tu2-qw',!!W.qw);
+    var land=innerWidth>innerHeight&&innerHeight<520; B.style.setProperty('--tu2-top',(land?44:60)+'px');
+    var pb=document.getElementById('sg-pbar'); B.classList.toggle('tu2-barup',!!(pb&&pb.offsetHeight>0&&getComputedStyle(pb).display!=='none'));
+    var cr=card.getBoundingClientRect(); var barTop=Math.round(cr.bottom+6); B.style.setProperty('--tu2-barb',barTop+'px'); B.style.setProperty('--tu2-invb',(barTop+36)+'px'); B.style.setProperty('--tu2-zoom',String(W.zoom));
+    Array.prototype.forEach.call(bar.querySelectorAll('.tu2-chip'),function(c){ var k=c.dataset.k; c.classList.toggle('on',!!W[k]); });
+    mirror(false); }
+  T.paint=paint; T.act=act; T.mirror=mirror;
+  setInterval(paint,300); window.addEventListener('resize',function(){ setTimeout(paint,50); });
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('touchui2: '+e); } })();
+</script>
+<script type="text/plain" data-retired="b106: froze on load, re-ship in pieces" id="sg-touchui2b-js">
+/*SG_TOUCHUI2 part 2: corner radar canvas (game's own radar suppressed while active), chat sync (one state), menu/settings proxies, duplicate-control sweep, /touchui*/
+(function(){ 'use strict'; try {
+  var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
+  var T=window.SGTOUCHUI2; if(!T) return; var W=T.W, B=document.body;
+  // radar
+  var cv=document.createElement('canvas'); cv.id='sg-tu2rad'; cv.width=280; cv.height=280; document.body.appendChild(cv); var cx=cv.getContext('2d');
+  function radar(){ try{ if(!T.active||!W.radar) return; var S=g('S'), TAGS=g('TAGS'), NPCT=g('NPCT'); if(!S||!S.ship) return; var sh=S.ship, R=136, sc=R/950; cx.setTransform(1,0,0,1,0,0); cx.clearRect(0,0,280,280); cx.translate(140,140);
+    cx.beginPath(); cx.arc(0,0,R,0,6.283); cx.fillStyle='rgba(6,14,12,.82)'; cx.fill(); cx.save(); cx.clip(); cx.strokeStyle='rgba(109,255,176,.2)'; cx.lineWidth=2; [.33,.66].forEach(function(f){ cx.beginPath(); cx.arc(0,0,R*f,0,6.283); cx.stroke(); }); cx.beginPath(); cx.moveTo(-R,0); cx.lineTo(R,0); cx.moveTo(0,-R); cx.lineTo(0,R); cx.stroke();
+    var sw=S.t*1.6; cx.strokeStyle='rgba(109,255,176,.45)'; cx.beginPath(); cx.moveTo(0,0); cx.lineTo(Math.cos(sw)*R,Math.sin(sw)*R); cx.stroke();
+    var dot=function(x,y,col,r,sq){ var dx=(x-sh.x)*sc, dy=(y-sh.y)*sc, d=Math.hypot(dx,dy), a=1; if(d>R-6){ var k=(R-6)/d; dx*=k; dy*=k; a=.45; } cx.globalAlpha=a; cx.fillStyle=col; if(sq) cx.fillRect(dx-r,dy-r,r*2,r*2); else { cx.beginPath(); cx.arc(dx,dy,r,0,6.283); cx.fill(); } cx.globalAlpha=1; };
+    (S.ast||[]).forEach(function(a){ var ms=(S.mission&&(a.defId===S.mission.a||a.defId===S.mission.b)); var col=ms?'#ffd76a':((TAGS&&TAGS[a.tag]&&TAGS[a.tag].color)||'#cfd6e6'); dot(a.x,a.y,col,ms?6:4); });
+    (S.picks||[]).forEach(function(p){ dot(p.x,p.y,'#ffd24d',4,true); }); (S.msgs||[]).forEach(function(m){ dot(m.x,m.y,'#6ee7ff',5,true); }); (S.npcs||[]).forEach(function(n){ dot(n.x,n.y,(NPCT&&NPCT[n.t]&&NPCT[n.t].c)||'#6ee7ff',6,true); });
+    cx.restore(); cx.strokeStyle='rgba(109,255,176,.75)'; cx.lineWidth=4; cx.beginPath(); cx.arc(0,0,R,0,6.283); cx.stroke(); cx.rotate(sh.a); cx.fillStyle='#fff'; cx.beginPath(); cx.moveTo(12,0); cx.lineTo(-8,-7); cx.lineTo(-8,7); cx.closePath(); cx.fill(); }catch(e){} }
+  setInterval(radar,100);
+  // suppress the game's own corner radar while ours is on (wrap in the game scope)
+  var tries=0, rg=setInterval(function(){ try{ var E=window.SGENG, A=window.SGAPI; if(!E||!A||!A.run||!A.get('sgDrawMini')){ if(++tries>80) clearInterval(rg); return; } clearInterval(rg); var was=E.role; try{ E.role='admin'; A.run("(function(){ if (sgDrawMini.__tu2) return 'dup'; var o = sgDrawMini; sgDrawMini = function(c){ try { var T = window.SGTOUCHUI2; if (T && T.active) return; } catch(e){} return o.apply(this, arguments); }; sgDrawMini.__tu2 = 1; return 'ok'; })()"); }finally{ E.role=was; } }catch(e){ clearInterval(rg); } },500);
+  // chat: one state. chip -> game's chat open/close; game's own open/close (backquote/Esc) -> state
+  T.setChat=function(on){ try{ var E=window.SGENG; if(E&&E.chat&&E.chat.open) E.chat.open(!!on); if(window.SGCOMM4&&SGCOMM4.set) SGCOMM4.set('chat',!!on); }catch(e){} };
+  var ob=new MutationObserver(function(){ try{ if(!T.active) return; var c=document.getElementById('sg-chat'); if(!c) return; var o=c.classList.contains('open')?1:0; if(o!==W.chat){ W.chat=o; T.save(); T.paint(); } }catch(e){} });
+  var ct=setInterval(function(){ var c=document.getElementById('sg-chat'); if(!c) return; clearInterval(ct); ob.observe(c,{attributes:true,attributeFilter:['class']}); },800);
+  var css=document.createElement('style'); css.textContent='body.tch.tu2 #sg-comm{display:none!important}body.tch.tu2.tu2-chat #sg-comm{display:block!important;position:fixed!important;left:10px!important;right:auto!important;width:calc(100vw - 130px)!important;top:auto!important;bottom:calc(272px + env(safe-area-inset-bottom))!important;z-index:21!important;height:auto!important;max-height:none!important}body.tch.tu2.tu2-chat.tu2-barup #sg-comm{bottom:calc(330px + env(safe-area-inset-bottom))!important}body.tch.tu2.tu2-chat #sg-comm .sgc-body,body.tch.tu2.tu2-chat #sg-comm #sg-chat{display:flex!important;flex-direction:column!important;height:150px!important;min-height:150px!important}body.tch.tu2.tu2-chat #sg-comm #sg-chat .cl{flex:1 1 auto!important;height:auto!important;max-height:none!important;overflow-y:auto!important;justify-content:flex-start!important}body.tch.tu2.tu2-chat #sg-comm #sg-chat input{display:block!important;font-size:16px!important}body.tch.tu2 #sg-comm #sg-chn4{display:none!important}@media (orientation:landscape) and (max-height:520px){body.tch.tu2.tu2-chat #sg-comm{bottom:calc(224px + env(safe-area-inset-bottom))!important;width:calc(100vw - 230px)!important}body.tch.tu2.tu2-chat #sg-comm .sgc-body,body.tch.tu2.tu2-chat #sg-comm #sg-chat{height:110px!important;min-height:110px!important}}'; document.head.appendChild(css);
+  // menu proxy + sweep of duplicate controls (game's own ☰ / +− pairs outside our column)
+  function sweep(){ try{ if(!T.active) return; var col=document.getElementById('sg-tu2col'), bar=document.getElementById('sg-tu2bar'); var els=document.querySelectorAll('body div,body button,body span'); for(var i=0;i<els.length;i++){ var e=els[i]; if(!e.isConnected||e.children.length>1||(col&&col.contains(e))||(bar&&bar.contains(e))) continue; var ps=getComputedStyle(e).position; if(ps!=='fixed'&&ps!=='absolute') continue; var t=(e.textContent||'').trim(); if(t==='\u2630'&&e.id!=='sg-phamb'){ if(!T.menuEl||!T.menuEl.isConnected) T.menuEl=e; e.classList.add('tu2-hide'); } else if((t==='+'||t==='\u2212'||t==='-')&&e.offsetWidth<60&&e.offsetHeight<60&&e.closest&&!e.closest('#sg-tu2col,#toolbar,#sg-hangar,#sg-ov,.sg-card')){ e.classList.add('tu2-hide'); } } }catch(e){} }
+  setInterval(sweep,1500);
+  var cmdt=0, rc=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++cmdt>120) clearInterval(rc); return; } clearInterval(rc);
+    E.cmd('touchui',{ h:'touch HUD v2: /touchui | reset | probe | zoom <0.7-1.4>', run:function(a){ a=Array.isArray(a)?a:String(a||'').split(' '); var x=a[0]; if(x==='reset'){ try{ localStorage.removeItem('sg_tu2'); }catch(e){} return 'Touch HUD state reset — reload.'; } if(x==='zoom'){ var z=parseFloat(a[1]); if(isFinite(z)){ W.zoom=Math.max(.7,Math.min(1.4,z)); T.save(); T.paint(); } return 'zoom '+W.zoom; } if(x==='probe'){ var ids=['sg-tu2c','sg-tu2bar','sg-tu2col','sg-tu2rad','tb-fire','tb-pull','tb-pow','sg-pchev','sg-pbar','sg-comm','sg-qw','sg-bl','sg-inv2','sg-tr','sg-bc','sg-tl','tch-top']; var L=ids.map(function(id){ var e=document.getElementById(id); if(!e) return id+': none'; var r=e.getBoundingClientRect(), cs=getComputedStyle(e); return id+':'+Math.round(r.left)+','+Math.round(r.top)+' '+Math.round(r.width)+'x'+Math.round(r.height)+' '+cs.display+' z'+cs.zIndex; }); var s='tu2 active '+T.active+' tch '+document.body.classList.contains('tch')+' · W '+JSON.stringify(W)+' · taps '+T.taps+' · copies '+T.copies+' · menuEl '+(T.menuEl?'found':'none')+' · errs '+T.err.length+'\n'+L.join('\n'); try{ (window.SGX=window.SGX||{err:[]}).err.push('touchui2: '+s.replace(/\n/g,' | ')); }catch(e){} return s; } return 'touch HUD v2 · active '+T.active+' · '+JSON.stringify(W)+' · taps '+T.taps+' · copies '+T.copies; } });
+  }catch(e){ clearInterval(rc); } },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('touchui2b: '+e); } })();
+</script>
+<script id="sg-ver105-js">
+(function(){ try { var t=setInterval(function(){ var V=window.SGVER, B=window.SGBUILD; if(!V) return; clearInterval(t); try{ if(B&&typeof B.set==='function') B.set('0.8.15',105); else if(B){ B.V='0.8.15'; B.B=105; } }catch(e){} try{ var ok=false; try{ V.v='0.8.15'; V.build=105; ok=(V.build===105); }catch(e){} if(!ok){ Object.defineProperty(V,'v',{get:function(){return '0.8.15';},configurable:true}); Object.defineProperty(V,'build',{get:function(){return 105;},configurable:true}); Object.defineProperty(V,'str',{get:function(){ return function(){ return 'v0.8.15 \u00b7 b105'; }; },configurable:true}); } }catch(e){} if(Array.isArray(V.LOG)) V.LOG.unshift({ v:'0.8.15', b:105, k:'fix', t:'Touch HUD v2 (one owner): hearts follow hull, capture-phase taps, stat card parked (no duplicate), radar arc spaced, chat/quests dock, side column \u2630 above \u2699 under the pause button, zoom scales the field, materials closed by default, duplicates swept; doubled /rest/v1 URL fix' }); },600); } catch(e){} })();
 </script>
 <!-- EM:END -->
 <script type="text/plain" data-retired="truncated star-template core; rebuilt as sg-stellar-js" id="sg-star-js">
