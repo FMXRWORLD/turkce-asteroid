@@ -31279,16 +31279,34 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 <script id="sg-build-js">
 /*SG_BUILD: the ONE place the version lives. Bump V and B here; everything else (stamp, /version, Guide, News) reads SGVER which is re-pointed at this object. Earlier bump scripts changed values a locked getter had already captured — hence the stale stamp.*/
 (function(){ 'use strict'; try {
-  var V='0.8.29', B=119, LABEL='Alpha v'+V+' \u00b7 b'+B;
+  var V='0.8.30', B=120, LABEL='Alpha v'+V+' \u00b7 b'+B;
   var BU=window.SGBUILD={ v:V, build:B, label:LABEL, str:function(){ return 'v'+V+' \u00b7 b'+B; }, fixes:0, mode:'' };
   function repoint(){ try{ var S=window.SGVER; if(!S){ window.SGVER={ v:V, build:B, LOG:[], str:function(){ return BU.str(); } }; BU.mode='created'; return; } var ok=true; ['v','build','str'].forEach(function(k){ try{ Object.defineProperty(S,k,{ configurable:true, enumerable:true, get:function(){ return k==='v'?V:k==='build'?B:function(){ return BU.str(); }; }, set:function(){} }); }catch(e){ ok=false; } }); BU.mode=ok?'repointed':'partial'; if(!ok){ try{ var NS={}; Object.keys(S).forEach(function(k){ if(['v','build','str'].indexOf(k)<0) NS[k]=S[k]; }); NS.v=V; NS.build=B; NS.str=function(){ return BU.str(); }; NS.LOG=S.LOG||[]; window.SGVER=NS; BU.mode='replaced'; }catch(e2){} } }catch(e){} }
   repoint();
-  try{ var L=(window.SGVER&&window.SGVER.LOG)||[]; if(Array.isArray(L)&&!L.some(function(x){ return x&&x.b===B; })) L.unshift({ v:V, b:B, k:'fix', t:'Sealed sg-secdoc2-js (cut off mid-string): /catchup rebuilt from live data, /integrity and /origin live; two duplicate /catchup blocks retired; sg-ver105-js retired - it re-pinned the stamp to b105 on every load, overriding sg-build-js (the stuck-version cause); shadow constants aligned at 0.8.29 b119' }); }catch(e){}
+  try{ var L=(window.SGVER&&window.SGVER.LOG)||[]; if(Array.isArray(L)&&!L.some(function(x){ return x&&x.b===B; })) L.unshift({ v:V, b:B, k:'fix', t:'Sealed sg-secdoc2-js (cut off mid-string): /catchup rebuilt from live data, /integrity and /origin live; two duplicate /catchup blocks retired; sg-ver105-js retired - it re-pinned the stamp to b105 on every load, overriding sg-build-js (the stuck-version cause); shadow constants aligned at 0.8.29 b119. b120: /leak [hide] - finds (and can hide) script text rendered in the DOM' }); }catch(e){}
   function stamp(){ try{ var el=document.getElementById('sg-build'); if(el&&el.textContent!==LABEL){ el.textContent=LABEL; BU.fixes++; } }catch(e){} }
   stamp(); setInterval(stamp,700);
   try{ new MutationObserver(function(){ stamp(); }).observe(document.body,{ childList:true, subtree:true, characterData:true }); }catch(e){}
   var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg); E.cmd('build',{ h:'build info: /build', run:function(){ return LABEL+' \u00b7 SGVER '+BU.mode+' \u00b7 stamp fixes '+BU.fixes+' \u00b7 SGVER.str() = '+(window.SGVER&&typeof SGVER.str==='function'?SGVER.str():'?'); } }); }catch(e){ clearInterval(reg); } },500);
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('build: '+e); } })();
+</script>
+<script id="sg-leak-js">
+/*SG_LEAK (b119): /leak finds visible text nodes that look like script source (a <script> closed early, an unstyled <pre>, a stray text node under <body>) and reports element chain + position + snippet; /leak hide wraps them in display:none spans for this load. Report-only by default.*/
+(function(){ 'use strict'; try {
+  function chain(el){ var p = [], n = el, i = 0; while (n && n.nodeType === 1 && i++ < 6){ p.push(n.tagName.toLowerCase() + (n.id ? '#' + n.id : '') + (n.className && typeof n.className === 'string' ? '.' + n.className.trim().split(/\s+/).slice(0, 2).join('.') : '')); n = n.parentElement; } return p.join(' < '); }
+  function scan(){ var out = [], w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null), t;
+    while ((t = w.nextNode())){ var s = t.nodeValue || ''; if (s.trim().length < 40) continue; var par = t.parentElement; if (!par) continue; var tag = par.tagName; if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA' || tag === 'NOSCRIPT') continue; var codey = /\/\*SG_|\(function\(\)|\}\)\(\);|try\s*\{|window\.SG|L\.push\(|setInterval\(/.test(s); if (!codey) continue; var r = null; try { var rg = document.createRange(); rg.selectNodeContents(t); r = rg.getBoundingClientRect(); } catch(e){} var cs = getComputedStyle(par); out.push({ node:t, el:par, direct:par === document.body, chain:chain(par), rect:r, vis:cs.display !== 'none' && cs.visibility !== 'hidden' && (!r || (r.width > 0 && r.height > 0)), len:s.length, head:s.trim().slice(0, 110).replace(/\s+/g, ' ') }); }
+    return out; }
+  function report(hide){ var L = ['LEAK · build ' + (window.SGVER && SGVER.str ? SGVER.str() : '?') + ' · scripts ' + document.scripts.length + ' · last script id ' + ((document.scripts[document.scripts.length - 1] || {}).id || '(none)')];
+    var f = scan(); L.push('code-like text nodes: ' + f.length + (f.length ? '' : ' (nothing leaking in the DOM - if text is still visible it is painted by a canvas or sits in an iframe)'));
+    f.forEach(function(x, i){ var r = x.rect; L.push((i + 1) + '. ' + (x.vis ? 'VISIBLE' : 'hidden') + (x.direct ? ' · DIRECT CHILD OF BODY' : '') + ' · ' + x.len + ' chars · ' + (r ? Math.round(r.width) + 'x' + Math.round(r.height) + ' @' + Math.round(r.left) + ',' + Math.round(r.top) : 'no rect') + '\n   in: ' + x.chain + '\n   "' + x.head + '"'); if (hide && x.vis){ try { var sp = document.createElement('span'); sp.style.display = 'none'; sp.className = 'sg-leak-hidden'; x.node.parentNode.insertBefore(sp, x.node); sp.appendChild(x.node); L.push('   -> hidden'); } catch(e){ L.push('   -> hide failed: ' + e); } } });
+    var txt = L.join('\n'); try { navigator.clipboard.writeText(txt); } catch(e){} return txt; }
+  window.SGLEAK = { scan:scan, report:report };
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('leak', { h:'find visible script text in the DOM: /leak [hide]', admin:true, run:function(a){ var s = Array.isArray(a) ? a.join(' ') : String(a || ''); return report(/hide/.test(s)); } });
+    if (window.SGCMDS && SGCMDS.NEW) SGCMDS.NEW.leak = 1;
+  } catch(e){ clearInterval(reg); } }, 500);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('leak: ' + e); } })();
 </script>
 <script id="sg-roadmap3-js">
 /*SG_ROADMAP3: roadmap entries for this pass + the alpha lock-down checklist that gates the move to system servers. Appends a page to the Engine Guide tab.*/
