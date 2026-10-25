@@ -31279,7 +31279,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 <script id="sg-build-js">
 /*SG_BUILD: the ONE place the version lives. Bump V and B here; everything else (stamp, /version, Guide, News) reads SGVER which is re-pointed at this object. Earlier bump scripts changed values a locked getter had already captured — hence the stale stamp.*/
 (function(){ 'use strict'; try {
-  var V='0.8.21', B=111, LABEL='Alpha v'+V+' \u00b7 b'+B;
+  var V='0.8.25', B=115, LABEL='Alpha v'+V+' \u00b7 b'+B;
   var BU=window.SGBUILD={ v:V, build:B, label:LABEL, str:function(){ return 'v'+V+' \u00b7 b'+B; }, fixes:0, mode:'' };
   function repoint(){ try{ var S=window.SGVER; if(!S){ window.SGVER={ v:V, build:B, LOG:[], str:function(){ return BU.str(); } }; BU.mode='created'; return; } var ok=true; ['v','build','str'].forEach(function(k){ try{ Object.defineProperty(S,k,{ configurable:true, enumerable:true, get:function(){ return k==='v'?V:k==='build'?B:function(){ return BU.str(); }; }, set:function(){} }); }catch(e){ ok=false; } }); BU.mode=ok?'repointed':'partial'; if(!ok){ try{ var NS={}; Object.keys(S).forEach(function(k){ if(['v','build','str'].indexOf(k)<0) NS[k]=S[k]; }); NS.v=V; NS.build=B; NS.str=function(){ return BU.str(); }; NS.LOG=S.LOG||[]; window.SGVER=NS; BU.mode='replaced'; }catch(e2){} } }catch(e){} }
   repoint();
@@ -34615,7 +34615,7 @@ function tick(){ requestAnimationFrame(tick); L.frames++; if(!L.on||!play()) ret
 }
 requestAnimationFrame(tick);
 // retire other geometry writers when they are exposed as functions
-setInterval(function(){ try{ ['SGTVFIX','SGHUDWIN4','SGMOBILE4','SGMOBILE5','SGMOBILE6','SGMOBILE7','SGLEFTCOL2','SGMATSTACK'].forEach(function(n){ var o=window[n]; if(!o||typeof o!=='object') return; Object.keys(o).forEach(function(k){ if(typeof o[k]==='function'&&/geom|apply|place|layout|pos|stack|fix/i.test(k)&&!o[k].__tvl){ var f=function(){}; f.__tvl=1; o[k]=f; } }); }); }catch(e){} },2000);
+setInterval(function(){ try{ if(!document.body.classList.contains('tch')) return; ['SGTVFIX','SGHUDWIN4','SGMOBILE4','SGMOBILE5','SGMOBILE6','SGMOBILE7','SGLEFTCOL2','SGMATSTACK'].forEach(function(n){ var o=window[n]; if(!o||typeof o!=='object') return; Object.keys(o).forEach(function(k){ if(typeof o[k]==='function'&&/geom|apply|place|layout|pos|stack|fix/i.test(k)&&!o[k].__tvl){ if(k==='apply'&&!o.__applyOrig) o.__applyOrig=o[k]; var f=function(){}; f.__tvl=1; o[k]=f; } }); }); }catch(e){} },2000);
 var tries=0,reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg); E.cmd('tvlayout',{h:'touch layout: /tvlayout | on|off',admin:true,run:function(a){ var x=Array.isArray(a)?a[0]:a; if(x==='on'||x==='off'){ L.on=x==='on'; return 'layout '+x; } var R=function(id){ var e=document.getElementById(id); if(!e) return id+':-'; var r=e.getBoundingClientRect(); return id+':'+(r.left|0)+','+(r.top|0)+' '+(r.width|0)+'x'+(r.height|0)+(getComputedStyle(e).display==='none'?' none':''); }; return 'frames '+L.frames+' \u00b7 writes '+L.writes+' \u00b7 '+['sg-tvcard','sg-tvbar','sg-tr','sg-bl','sg-inv2','sg-qw','sg-tvcol'].map(R).join(' | '); }}); }catch(e){} },500);
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('tvlayout: '+e); } })();
 </script>
@@ -34657,6 +34657,167 @@ var tries=0,reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){
 <script id="sg-docs111-js">
 /*SG_DOCS111: changelog + command docs for b111.*/
 (function(){ try { var t=setInterval(function(){ var V=window.SGVER; if(!V||!Array.isArray(V.LOG)) return; clearInterval(t); V.LOG.unshift({ v:'0.8.21', b:111, k:'fix', t:'Touch UI: leftover sweep (stray icon column, heart row, grey +/- pair); single layout owner (score card beside stat card, cargo under icon bar, materials under cargo, quests under score card); command bar rebuilt (own chevron above POWER, horizontal scroll row, opens/closes only by chevron or empty-field tap); chat docks to the top when the keyboard is up, input focused on open; joystick ring never takes pointer events; /tvclean /tvlayout /tvbar /tvzoom' }); try{ var D=window.SGCMDDOCS&&SGCMDDOCS.add; if(D){ D('tvclean','/tvclean | sweep','touch: list/hide leftovers of retired touch modules (admin)'); D('tvlayout','/tvlayout | on|off','touch: window geometry owner, prints rects (admin)'); D('tvbar','/tvbar | open|close','touch: command bar state (admin)'); D('tvzoom','/tvzoom | probe | reset','touch: zoom state + 2-s steering probe (admin)'); } }catch(e){} },600); } catch(e){} })();
+</script>
+<script id="sg-eidbind2-js">
+/*SG_EIDBIND2 (b112): replaces the b103 identity-binding client. The old one captured the pilot id and the JWT once at load (empty while signed out) and kept polling with that stale token -> 401 x N after sign-in and never bound. This one reads both fresh on every call, binds once per session after sign-in (re-binds if the eid changes), pulls the binding set every 60 s, and drops only IMPERSONATION: a sender bound to account A carrying the callsign of a different bound pilot. Disguised admins (custom names) pass. In strict mode (private realtime on) unbound senders are dropped too. The old module's unmarked eid_bindings requests are answered locally with [] so its flood stops. /eidbind shows state.*/
+(function(){ 'use strict'; try {
+var EB=window.SGEIDBIND2={known:{},byName:{},bound:'',pulls:0,ok:0,fail:0,seen:0,dropped:0,last:'',strict:false};
+function acct(){ try{ return JSON.parse(localStorage.getItem('sg_acct')||'null'); }catch(e){ return null; } }
+function jwt(){ var a=acct(); if(!a||!a.access_token) return ''; var exp=+a.expires_at||0; if(exp&&exp*1000<Date.now()+5000) return ''; return a.access_token; }
+function base(){ var N=window.SGNET; var u=(N&&(N.url||(N.cfg&&N.cfg.url)))||(window.SGSUPA&&SGSUPA.C&&SGSUPA.C.url)||''; return String(u).replace(/\/+$/,'').replace(/\/rest\/v1$/,''); }
+function key(){ var N=window.SGNET; return (N&&(N.key||(N.cfg&&N.cfg.key)))||(window.SGSUPA&&SGSUPA.C&&SGSUPA.C.key)||''; }
+function mine(){ try{ return window.SGENG.me.id||''; }catch(e){ return ''; } }
+function myName(){ try{ return window.SGENG.me.name()||''; }catch(e){ return ''; } }
+function hdr(){ return { 'Content-Type':'application/json', apikey:key(), Authorization:'Bearer '+jwt(), 'x-sg-eid2':'1' }; }
+// gate: the OLD module's eid_bindings requests carry no marker -> answered locally, no network, no 401
+try{ var _f=window.fetch; if(_f&&!_f.__eid2){ var w=function(u,o){ try{ var s=typeof u==='string'?u:((u&&u.url)||''); if(s.indexOf('/eid_bindings')>=0){ var h=(o&&o.headers)||{}; var marked=h['x-sg-eid2']||(h.get&&h.get('x-sg-eid2')); if(!marked) return Promise.resolve(new Response('[]',{status:200,headers:{'Content-Type':'application/json'}})); } }catch(e){} return _f.apply(this,arguments); }; w.__eid2=1; window.fetch=w; } }catch(e){}
+function pull(){ var t=jwt(), b=base(); if(!t||!b) return; EB.pulls++; fetch(b+'/rest/v1/eid_bindings?select=eid,user_id,callsign',{headers:hdr()}).then(function(r){ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); }).then(function(rows){ EB.ok++; var K={},N={}; (rows||[]).forEach(function(x){ if(x&&x.eid){ K[x.eid]={u:x.user_id,n:String(x.callsign||'')}; if(x.callsign) N[String(x.callsign).toLowerCase()]=x.eid; } }); EB.known=K; EB.byName=N; EB.last='ok '+Object.keys(K).length; }).catch(function(e){ EB.fail++; EB.last=String(e&&e.message||e); }); }
+function bind(){ var t=jwt(), b=base(), id=mine(); if(!t||!b||!/^[0-9a-f]{16}$/.test(id)||EB.bound===id) return; fetch(b+'/rest/v1/rpc/eid_bind',{method:'POST',headers:hdr(),body:JSON.stringify({p_eid:id,p_name:myName()})}).then(function(r){ if(r.ok){ EB.bound=id; setTimeout(pull,800); } else EB.last='bind HTTP '+r.status; }).catch(function(e){ EB.last='bind '+e; }); }
+function peek(raw){ try{ if(typeof raw!=='string'||raw.indexOf('"from"')<0) return false; var m=JSON.parse(raw); if(!m||!m.from) return false; EB.seen++; var k=EB.known[m.from], nm=String(m.name||'').toLowerCase(); if(k&&nm&&k.n&&nm!==k.n.toLowerCase()&&EB.byName[nm]&&EB.byName[nm]!==m.from){ EB.dropped++; return true; } if(EB.strict&&!k&&Object.keys(EB.known).length){ EB.dropped++; return true; } return false; }catch(e){ return false; } }
+function wrapOn(obj){ if(!obj) return; var cur=obj.onmessage; if(typeof cur!=='function'||cur.__eid2) return; var w=function(e){ try{ if(peek(e&&e.data)) return; }catch(x){} return cur.apply(this,arguments); }; w.__eid2=1; try{ Object.keys(cur).forEach(function(k){ if(k.indexOf('__')===0) w[k]=cur[k]; }); }catch(e){} obj.onmessage=w; }
+setInterval(function(){ try{ var N=window.SGENG&&SGENG.net; if(N){ wrapOn(N.ch); wrapOn(N.ws); } EB.strict=!!((window.SGMP&&(SGMP.priv||SGMP.private))||(window.SGSECB&&SGSECB.priv)); bind(); }catch(e){} },3000);
+setInterval(pull,60000); setTimeout(pull,4000);
+var tries=0,reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg); try{ E.on('account',function(){ EB.bound=''; setTimeout(bind,1200); }); }catch(e){} E.cmd('eidbind',{h:'identity binding: /eidbind | pull | bind',admin:true,run:function(a){ var x=Array.isArray(a)?a[0]:a; if(x==='pull') pull(); if(x==='bind'){ EB.bound=''; bind(); } return 'mine '+mine()+' \u00b7 bound '+(!!EB.bound&&EB.bound===mine())+' \u00b7 known '+Object.keys(EB.known).length+' \u00b7 seen '+EB.seen+' \u00b7 dropped '+EB.dropped+' \u00b7 strict '+EB.strict+' \u00b7 pulls '+EB.pulls+' ok '+EB.ok+' fail '+EB.fail+' \u00b7 jwt '+(jwt()?'fresh':'none/expired')+' \u00b7 last '+EB.last; }}); }catch(e){} },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('eidbind2: '+e); } })();
+</script>
+<script id="sg-docs112-js">
+/*SG_DOCS112: changelog for b112.*/
+(function(){ try { var t=setInterval(function(){ var V=window.SGVER; if(!V||!Array.isArray(V.LOG)) return; clearInterval(t); V.LOG.unshift({ v:'0.8.22', b:112, k:'fix', t:'Identity binding rebuilt: fresh JWT/eid per call, binds after sign-in, pulls every 60 s, drops impersonation only (disguise passes); old poller silenced (no more eid_bindings 401 flood)' }); },600); } catch(e){} })();
+</script>
+<script id="sg-deskfix-js">
+/*SG_DESKFIX (b113): desktop repairs after b107 disabled every stylesheet carrying the old touch signatures. (1) #sg-hwbar (the desktop window bar under the stat card) lost its CSS and rendered as a bare 232x361 vertical column at 0,0 -- restyled here with ATTRIBUTE selectors ([id=sg-hwbar]) so the disabler's text match can't see it. (2) The retired mobile side column (sg-m5col / sg-m7col / tvcol remnants) is hidden on non-touch. (3) The b111 geometry no-op only applies on touch (tvlayout mistakenly no-op'd hudwin4.apply on desktop too).*/
+(function(){ 'use strict'; try {
+var css=document.createElement('style'); css.id='sg-deskfix-css'; css.textContent='body:not(.tch) [id=sg-hwbar]{position:fixed!important;left:10px!important;top:248px!important;width:232px!important;height:26px!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:4px!important;padding:0 4px!important;box-sizing:border-box!important;background:rgba(6,14,12,.82)!important;border:1px solid rgba(109,255,176,.45)!important;border-radius:4px!important;z-index:9!important;font:700 13px Orbitron,sans-serif!important;color:#8fd9b4!important;overflow:hidden!important}body:not(.tch) [id=sg-hwbar] > *{flex:1 1 0!important;display:flex!important;align-items:center!important;justify-content:center!important;height:22px!important;cursor:pointer!important;opacity:.9}body:not(.tch) [id=sg-hwbar] .off,body:not(.tch) [id=sg-hwbar] [data-off="1"]{opacity:.35!important}body:not(.tch) [id=sg-comm]{top:280px!important}body:not(.tch) [id^=sg-m5col],body:not(.tch) [id^=sg-m7col],body:not(.tch) [id^=sg-tvcol],body:not(.tch) [id^=sg-tucol],body:not(.tch) [id=sg-tvjoy],body:not(.tch) [id=sg-tvchev],body:not(.tch) [id=sg-tvcmd],body:not(.tch) [id=sg-tvcard],body:not(.tch) [id=sg-tvbar],body:not(.tch) [id=sg-tvrad]{display:none!important}'; document.head.appendChild(css);
+// retired mobile leftovers on desktop: hide by id prefix / by lone +/- or hamburger boxes outside the known bars
+var PFX=/^(sg-m[2-7]|sg-mb|sg-mz|sg-pz|sg-zoom|sg-tucol|sg-tu2|sg-pbar|sg-pchev|tch-sm|tch-tray|tch-top)/;
+function sweep(){ if(document.body.classList.contains('tch')) return; var all=document.querySelectorAll('body > *, #app > *'); for(var i=0;i<all.length;i++){ var el=all[i]; if(el.__dfx) continue; var id=el.id||''; if(/^(sg-hwbar|sg-erow|toolbar|sg-comm|sg-tl|sg-tr|sg-tc|sg-bl|sg-bc|sg-inv2|sg-qw|sg-hud|board|app|sg-ov|sg-doc)$/.test(id)) continue; if(id&&PFX.test(id)){ el.__dfx=1; el.style.setProperty('display','none','important'); continue; } var cs; try{ cs=getComputedStyle(el); }catch(e){ continue; } if(cs.display==='none'||cs.position!=='fixed') continue; var r=el.getBoundingClientRect(); if(r.width===0||r.width>80||r.height>200) continue; var t=(el.textContent||'').replace(/\s+/g,''); if(/^[+\u2212\-\u2630\u2699]{1,3}$/.test(t)){ el.__dfx=1; el.style.setProperty('display','none','important'); } } }
+setInterval(sweep,1200); setTimeout(sweep,1200);
+// un-no-op hudwin4's layout on desktop (b111 tvlayout only meant touch)
+setInterval(function(){ try{ if(document.body.classList.contains('tch')) return; var H=window.SGHUDWIN4; if(H&&H.apply&&H.apply.__tvl&&H.__applyOrig){ H.apply=H.__applyOrig; } }catch(e){} },1500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('deskfix: '+e); } })();
+</script>
+<script id="sg-tvgeo-js">
+/*SG_TVGEO — the ONLY geometry owner for the four HUD windows (#sg-bl cargo · #sg-inv2 materials · #sg-qw quests · #sg-tr score), touch AND desktop.
+  Root cause of the jitter: several frame-loops wrote different positions to the same boxes. Instead of a MutationObserver (which the observer brake disconnects),
+  each element gets a style GUARD: writes to geometry properties from anyone but this module are dropped. display/visibility are left alone (chips still toggle them).
+  Layout, touch: score card beside the stat card (same top), cargo under the icon bar, materials under cargo (or under the bar), quests under the score card.
+  Layout, desktop: materials sits directly above cargo (cargo keeps the game's own place). /tvgeo prints writes·blocked·rects.*/
+(function(){ 'use strict'; try {
+  var GEO = { top:1, left:1, right:1, bottom:1, width:1, height:1, transform:1, position:1, margin:1, 'margin-top':1, 'margin-left':1, 'max-height':1, 'max-width':1, 'min-height':1, inset:1 };
+  var G = window.SGTVGEO = { on:true, frames:0, blocked:0, writes:0, guarded:{} }, ME = false;
+  function guard(el){ if (!el || el.__geo) return; var real = el.style; var proxy = new Proxy(real, {
+    get:function(t, k){ var v = t[k]; if (typeof v !== 'function') return v;
+      if (k === 'setProperty') return function(p, val, pri){ if (!ME && GEO[String(p).toLowerCase()]) { G.blocked++; return; } return v.call(t, p, val, pri); };
+      if (k === 'removeProperty') return function(p){ if (!ME && GEO[String(p).toLowerCase()]) { G.blocked++; return ''; } return v.call(t, p); };
+      return v.bind(t); },
+    set:function(t, k, val){ var p = String(k).replace(/[A-Z]/g, function(c){ return '-' + c.toLowerCase(); }); if (k === 'cssText'){ if (!ME){ G.blocked++; return true; } t.cssText = val; return true; } if (!ME && GEO[p]){ G.blocked++; return true; } t[k] = val; return true; } });
+    try { Object.defineProperty(el, 'style', { get:function(){ return proxy; }, configurable:true }); el.__geo = real; G.guarded[el.id || '?'] = 1; } catch(e){} }
+  function W(el, p, v){ if (!el || !el.__geo) return; var s = el.__geo; if (s.getPropertyValue(p) === v && s.getPropertyPriority(p) === 'important') return; ME = true; try { s.setProperty(p, v, 'important'); } finally { ME = false; } G.writes++; }
+  function U(el, p){ if (!el || !el.__geo) return; var s = el.__geo; if (!s.getPropertyValue(p)) return; ME = true; try { s.removeProperty(p); } finally { ME = false; } }
+  var $ = function(id){ return document.getElementById(id); };
+  var tch = function(){ return document.body.classList.contains('tch'); };
+  var vis = function(el){ return !!(el && el.__geo && el.__geo.getPropertyValue('display') !== 'none' && getComputedStyle(el).display !== 'none'); };
+  var flags = function(){ try { var T = window.SGTV; var w = T && (T.W || (T.S && T.S.W) || (T.state && T.state.W)); if (w) return w; } catch(e){} try { return JSON.parse(localStorage.getItem('sg_tv') || '{}').W || {}; } catch(e){ return {}; } };
+  function layoutTouch(bl, inv, qw, tr){ var card = $('sg-tvcard'), bar = $('sg-tvbar'), col = $('sg-tvcol'), cr = card && card.getBoundingClientRect(), br = bar && bar.getBoundingClientRect(), cl = col && col.getBoundingClientRect();
+    if (!cr || cr.width < 40) return; var w = Math.round(cr.width), L = Math.round(cr.left), f = flags(), colOn = document.body.classList.contains('tv-side');
+    var rightLimit = (colOn && cl && cl.width) ? Math.round(cl.left - 6) : (window.innerWidth - 8);
+    if (tr){ var trW = Math.max(120, rightLimit - (L + w + 8)); W(tr, 'position', 'fixed'); W(tr, 'left', (L + w + 8) + 'px'); W(tr, 'top', Math.round(cr.top) + 'px'); W(tr, 'width', trW + 'px'); W(tr, 'right', 'auto'); W(tr, 'bottom', 'auto'); W(tr, 'transform', 'none'); W(tr, 'max-height', '68px'); }
+    var y = (br && br.height ? br.bottom : cr.bottom) + 6;
+    if (bl && f.bl !== 0 && vis(bl)){ W(bl, 'position', 'fixed'); W(bl, 'left', L + 'px'); W(bl, 'top', Math.round(y) + 'px'); W(bl, 'width', w + 'px'); W(bl, 'right', 'auto'); W(bl, 'bottom', 'auto'); W(bl, 'transform', 'none'); W(bl, 'max-height', '96px'); var r = bl.getBoundingClientRect(); y = r.bottom + 6; }
+    if (inv && f.inv !== 0 && vis(inv)){ W(inv, 'position', 'fixed'); W(inv, 'left', L + 'px'); W(inv, 'top', Math.round(y) + 'px'); W(inv, 'width', w + 'px'); W(inv, 'right', 'auto'); W(inv, 'bottom', 'auto'); W(inv, 'transform', 'none'); W(inv, 'max-height', '120px'); }
+    if (qw && f.qw !== 0 && vis(qw) && tr){ var trr = tr.getBoundingClientRect(); W(qw, 'position', 'fixed'); W(qw, 'left', (L + w + 8) + 'px'); W(qw, 'top', Math.round(trr.bottom + 6) + 'px'); W(qw, 'width', Math.max(120, rightLimit - (L + w + 8)) + 'px'); W(qw, 'right', 'auto'); W(qw, 'bottom', 'auto'); W(qw, 'transform', 'none'); W(qw, 'max-height', '150px'); }
+  }
+  function layoutDesktop(bl, inv){ ['sg-tr', 'sg-qw'].forEach(function(id){ var e = $(id); if (e) ['position', 'left', 'top', 'width', 'right', 'bottom', 'transform', 'max-height'].forEach(function(p){ U(e, p); }); });
+    if (bl) ['position', 'left', 'top', 'width', 'right', 'bottom', 'transform', 'max-height'].forEach(function(p){ U(bl, p); });
+    if (inv && bl && vis(bl)){ var r = bl.getBoundingClientRect(); if (r.width > 40){ W(inv, 'position', 'fixed'); W(inv, 'left', Math.round(r.left) + 'px'); W(inv, 'width', Math.round(r.width) + 'px'); W(inv, 'bottom', Math.round(window.innerHeight - r.top + 6) + 'px'); W(inv, 'top', 'auto'); W(inv, 'right', 'auto'); W(inv, 'transform', 'none'); W(inv, 'max-height', '26vh'); } }
+  }
+  function frame(){ try { G.frames++; var bl = $('sg-bl'), inv = $('sg-inv2'), qw = $('sg-qw'), tr = $('sg-tr'); [bl, inv, qw, tr].forEach(guard);
+    if (G.frames % 30 === 0){ var b = document.body; ['mb-nochat', 'mb-noqw', 'mb-notb', 'mb-noinv', 'mb-noradar'].forEach(function(c){ if (b.classList.contains(c)) b.classList.remove(c); }); }
+    if (!G.on) return; if (tch()) layoutTouch(bl, inv, qw, tr); else layoutDesktop(bl, inv); } catch(e){ G.err = String(e); } }
+  (function loop(){ frame(); requestAnimationFrame(loop); })();
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('tvgeo', { h:'HUD window geometry owner: /tvgeo | off | on', run:function(a){ var x = Array.isArray(a) ? a[0] : a; if (x === 'off'){ G.on = false; return 'tvgeo off'; } if (x === 'on'){ G.on = true; return 'tvgeo on'; }
+      var R = function(id){ var e = $(id); if (!e) return id + ':—'; var r = e.getBoundingClientRect(); return id + ':' + Math.round(r.left) + ',' + Math.round(r.top) + ' ' + Math.round(r.width) + 'x' + Math.round(r.height) + (vis(e) ? '' : ' hidden'); };
+      return 'frames ' + G.frames + ' · writes ' + G.writes + ' · blocked ' + G.blocked + ' · touch ' + tch() + ' · guarded ' + Object.keys(G.guarded).join(',') + (G.err ? ' · err ' + G.err : '') + ' | ' + ['sg-tr', 'sg-bl', 'sg-inv2', 'sg-qw'].map(R).join(' | '); } });
+  } catch(e){ clearInterval(reg); } }, 500);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('tvgeo: ' + e); } })();
+</script>
+<script id="sg-signinfix-js">
+/*SG_SIGNINFIX — the sign-in panel (the fixed panel holding the e-mail input) must survive the start-menu's auto-hides (menu-rescue at 3 s/7 s, News auto-open).
+  Rules: the panel is kept ABOVE the News window; if it was visible and gets hidden while the user has not clicked inside it / pressed Esc / signed in, it is
+  restored (20-s window after the e-mail input had focus, and never more than 6 times a session so a real close is never fought). The sign-in button reopens it.
+  Also: while the e-mail input has focus, the News window is pushed under it instead of covering it. /signinfix prints state.*/
+(function(){ 'use strict'; try {
+  var F = window.SGSIGNINFIX = { restores:0, lastFocus:0, lastInside:0, esc:0, panel:'' };
+  var $ = function(s){ try { return document.querySelector(s); } catch(e){ return null; } };
+  function panel(){ var inp = $('input[type=email]') || $('input[placeholder*="@"]') || $('input[placeholder*="mail" i]'); if (!inp) return null; var p = inp; for (var i = 0; i < 10 && p && p !== document.body; i++){ var cs = getComputedStyle(p); if (cs.position === 'fixed' || cs.position === 'absolute'){ F.panel = p.id || p.className || p.tagName; return p; } p = p.parentElement; } return null; }
+  function shown(el){ if (!el) return false; var cs = getComputedStyle(el), r = el.getBoundingClientRect(); return cs.display !== 'none' && cs.visibility !== 'hidden' && +cs.opacity > .05 && r.width > 40 && r.height > 40; }
+  function signedIn(){ try { return !!(window.SGNET && SGNET.email && SGNET.email()); } catch(e){ return false; } }
+  function show(p){ if (!p) return; p.style.removeProperty('display'); if (!shown(p)) p.style.setProperty('display', 'block', 'important'); p.style.setProperty('z-index', '99970', 'important'); if (p.classList && !p.classList.contains('open')) p.classList.add('open'); var inp = p.querySelector('input[type=email],input'); if (inp && document.activeElement !== inp) setTimeout(function(){ try { inp.focus(); } catch(e){} }, 60); }
+  document.addEventListener('focusin', function(e){ var t = e.target; if (t && t.tagName === 'INPUT' && (t.type === 'email' || /mail|@/i.test(t.placeholder || ''))) F.lastFocus = Date.now(); }, true);
+  document.addEventListener('pointerdown', function(e){ var p = panel(); if (p && p.contains(e.target)) F.lastInside = Date.now(); }, true);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') F.esc = Date.now(); }, true);
+  var wasShown = false;
+  setInterval(function(){ try { var p = panel(); if (!p) { wasShown = false; return; } var s = shown(p);
+    if (s){ p.style.setProperty('z-index', '99970', 'important'); var nw = $('#sg-nw'); if (nw) nw.style.setProperty('z-index', '99950', 'important'); }
+    var typing = Date.now() - F.lastFocus < 20000, userClosed = Date.now() - F.lastInside < 1500 || Date.now() - F.esc < 1500;
+    if (wasShown && !s && typing && !userClosed && !signedIn() && F.restores < 6){ F.restores++; show(p); try { (window.SGX = window.SGX || { err:[] }).err.push('signinfix: restored the sign-in panel (hidden while typing)'); } catch(e){} s = true; }
+    wasShown = s; } catch(e){ F.err = String(e); } }, 250);
+  // the sign-in button reopens the panel even if a prior hide left it in a stuck state
+  document.addEventListener('click', function(e){ var t = e.target && e.target.closest ? e.target.closest('button,div,span,a') : null; if (!t) return; var tx = (t.textContent || '').trim(); if (!/GİRİŞ|Giriş|Sign in|Oturum/i.test(tx) || tx.length > 40) return; setTimeout(function(){ var p = panel(); if (p && !shown(p)) show(p); }, 120); }, true);
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('signinfix', { h:'sign-in panel guard: /signinfix | open', run:function(a){ var x = Array.isArray(a) ? a[0] : a; var p = panel(); if (x === 'open'){ show(p); return p ? 'opened' : 'no sign-in panel found'; } return 'panel ' + (p ? F.panel + ' shown=' + shown(p) : 'none') + ' · restores ' + F.restores + ' · typing ' + (Date.now() - F.lastFocus < 20000) + (F.err ? ' · err ' + F.err : ''); } });
+  } catch(e){ clearInterval(reg); } }, 500);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('signinfix: ' + e); } })();
+</script>
+<script id="sg-docs-b113-js">
+/*SG_DOCS_B113 — version bump + changelog for b113 (the build constant anchor text differs, so the bump is applied at runtime through the build module's own setter when present).*/
+(function(){ try { var t = setInterval(function(){ var V = window.SGVER; if (!V || !Array.isArray(V.LOG)) return; clearInterval(t);
+  try { if (typeof window.SGBUILD_SET === 'function') SGBUILD_SET('0.8.23', 113); else if (window.SGBUILD && typeof SGBUILD === 'object'){ try { SGBUILD.v = '0.8.23'; SGBUILD.build = 113; SGBUILD.V = '0.8.23'; SGBUILD.B = 113; } catch(e){} } } catch(e){}
+  V.LOG.unshift({ v:'0.8.23', b:113, k:'fix', t:'Touch/desktop HUD windows: one geometry owner (tvgeo) with per-element style guards — cargo/materials/quests/score no longer jitter; desktop materials docks above cargo; stray mb-* classes stripped everywhere. Sign-in panel survives menu-rescue/News auto-open on mobile and reopens from its button (signinfix). Desktop window bar restyled; retired mobile side column hidden on desktop. Identity binding reads a fresh token (b112).' });
+}, 600); } catch(e){} })();
+</script>
+<script id="sg-hwbarfix2-js">
+/*SG_HWBARFIX2 (b115): the desktop window bar (#sg-hwbar, from b53) lost its stylesheet when b107 disabled sheets that mention it. This restores everything that sheet did, under selectors the disabler cannot match (attribute selectors). Desktop only — touch uses the v2 bar.
+  1. chip order: chat · cargo · materials · quests · radar · toolbar (flex order by data-k, else by icon)
+  2. radar chip: stroke/fill restored; glyph injected if the chip is empty
+  3. hw-no* body classes hide/show their windows; hw-notb slides the bottom toolbar
+  4. play-only: hidden on start/pause menus and in interiors (body class, !important)
+  5. click safety net: if a chip did not flip its body class, flip it here
+  6. runtime stamp bump (source constants edited separately)
+  Rules: no MutationObserver; simple selectors; a 400 ms tick.*/
+(function(){ 'use strict'; try {
+  if (window.SGHWBARFIX && window.SGHWBARFIX.v >= 2) return;
+  var F = window.SGHWBARFIX = { v:2, ticks:0, fb:0, ic:0, on:false };
+  var g = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
+  var touch = function(){ return document.body && document.body.classList.contains('tch'); };
+  try { if (window.SGBUILD){ SGBUILD.V = '0.8.25'; SGBUILD.B = 115; } } catch(e){}
+  var B = '[id="sg-hwbar"]';
+  var css = document.createElement('style'); css.id = 'sg-hwbarfix2-css';
+  css.textContent = [
+    B + '{position:fixed!important;left:10px!important;bottom:106px!important;top:auto!important;width:232px!important;height:30px!important;display:flex!important;flex-direction:row!important;align-items:center!important;gap:4px!important;padding:2px 4px!important;box-sizing:border-box!important;background:rgba(6,14,12,.86)!important;border:1px solid rgba(109,255,176,.45)!important;z-index:64!important;pointer-events:auto!important;overflow:hidden!important}',
+    B + ' > *{flex:1 1 0!important;height:24px!important;display:flex!important;align-items:center!important;justify-content:center!important;cursor:pointer;font-size:14px;line-height:1;border:1px solid rgba(109,255,176,.25);background:rgba(0,0,0,.3);color:#cfe;opacity:.95;transition:opacity .15s}',
+    B + ' > .hwdim{opacity:.35}',
+    B + ' svg{width:16px!important;height:16px!important;stroke:#6dffb0!important;fill:none!important;stroke-width:1.6!important;display:block!important}',
+    B + ' > [data-k="comm"],' + B + ' > .hwk-comm{order:1}', B + ' > [data-k="bl"],' + B + ' > .hwk-bl{order:2}', B + ' > [data-k="inv"],' + B + ' > .hwk-inv{order:3}', B + ' > [data-k="qw"],' + B + ' > .hwk-qw{order:4}', B + ' > [data-k="radar"],' + B + ' > .hwk-radar{order:5}', B + ' > [data-k="tb"],' + B + ' > .hwk-tb{order:6}',
+    'body.hw-nobl [id="sg-bl"]{display:none!important}', 'body.hw-noinv [id="sg-inv2"]{display:none!important}', 'body.hw-noqw [id="sg-qw"]{display:none!important}', 'body.hw-nocomm [id="sg-comm"]{display:none!important}',
+    '[id="toolbar"]{transition:transform .25s ease!important}', 'body.hw-notb [id="toolbar"]{transform:translateY(130%)!important;pointer-events:none!important}',
+    'body.hwb-hide ' + B + '{display:none!important}', 'body.tch ' + B + '{display:none!important}'
+  ].join('\n');
+  document.head.appendChild(css);
+  var ORD = [['comm', /💬/], ['bl', /📦/], ['inv', /🧰/], ['qw', /📋/], ['tb', /☰/]];
+  var RAD = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><path d="M12 12 L19 7"/><circle cx="8" cy="15" r="1.2" fill="#6dffb0" stroke="none"/></svg>';
+  function keyOf(ch){ var k = ch.dataset && ch.dataset.k; if (k) return k; var t = (ch.textContent || ''); for (var i = 0; i < ORD.length; i++) if (ORD[i][1].test(t)) return ORD[i][0]; if (ch.querySelector('svg')) return 'radar'; return ''; }
+  function tag(bar){ var kids = bar.children, seen = {}; for (var i = 0; i < kids.length; i++){ var ch = kids[i], k = keyOf(ch); if (!k && !(ch.textContent || '').trim() && !ch.querySelector('svg')) k = 'radar'; if (!k) continue; seen[k] = 1; if (!ch.dataset.k) ch.dataset.k = k; ch.classList.add('hwk-' + k); if (k === 'radar' && !ch.querySelector('svg')){ ch.innerHTML = RAD; F.ic++; } } }
+  var MAP = { comm:'hw-nocomm', bl:'hw-nobl', inv:'hw-noinv', qw:'hw-noqw', radar:'hw-noradar', tb:'hw-notb' };
+  function dim(bar){ var b = document.body; for (var i = 0; i < bar.children.length; i++){ var ch = bar.children[i], k = ch.dataset.k; if (!k) continue; ch.classList.toggle('hwdim', b.classList.contains(MAP[k])); } }
+  function playing(){ try { var S = g('S'), I = g('INT'); return !!(S && S.on && S.state === 'play' && !(I && I.id)); } catch(e){ return false; } }
+  document.addEventListener('click', function(e){ try { var bar = document.getElementById('sg-hwbar'); if (!bar) return; var ch = e.target.closest && e.target.closest('[id="sg-hwbar"] > *'); if (!ch) return; var k = ch.dataset.k, cls = MAP[k]; if (!cls) return; var had = document.body.classList.contains(cls); setTimeout(function(){ if (document.body.classList.contains(cls) === had){ document.body.classList.toggle(cls); F.fb++; } dim(bar); }, 150); } catch(x){} }, true);
+  setInterval(function(){ try { F.ticks++; var b = document.body; if (!b) return; ['mb-nochat', 'mb-noqw', 'mb-notb'].forEach(function(c){ if (b.classList.contains(c)) b.classList.remove(c); }); var bar = document.getElementById('sg-hwbar'); var on = !touch() && playing(); F.on = on; b.classList.toggle('hwb-hide', !on); if (!bar || !on) return; tag(bar); dim(bar); } catch(e){} }, 400);
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('hwbar', { h:'desktop window bar: /hwbar', admin:true, run:function(){ var bar = document.getElementById('sg-hwbar'); if (!bar) return 'no #sg-hwbar'; var r = bar.getBoundingClientRect(); return 'shown ' + F.on + ' · ticks ' + F.ticks + ' · fallbacks ' + F.fb + ' · icons injected ' + F.ic + ' · rect ' + Math.round(r.left) + ',' + Math.round(r.top) + ' ' + Math.round(r.width) + 'x' + Math.round(r.height) + ' · chips ' + Array.prototype.map.call(bar.children, function(c){ return (c.dataset.k || '?') + (c.classList.contains('hwdim') ? ':off' : ':on'); }).join(' '); } });
+  } catch(e){ clearInterval(reg); } }, 500);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('hwbarfix2: ' + e); } })();
 </script>
 <!-- EM:END -->
 <script type="text/plain" data-retired="truncated star-template core; rebuilt as sg-stellar-js" id="sg-star-js">
