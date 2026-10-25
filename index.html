@@ -31279,7 +31279,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 <script id="sg-build-js">
 /*SG_BUILD: the ONE place the version lives. Bump V and B here; everything else (stamp, /version, Guide, News) reads SGVER which is re-pointed at this object. Earlier bump scripts changed values a locked getter had already captured — hence the stale stamp.*/
 (function(){ 'use strict'; try {
-  var V='0.8.40', B=130, LABEL='Alpha v'+V+' \u00b7 b'+B;
+  var V='0.8.41', B=131, LABEL='Alpha v'+V+' \u00b7 b'+B;
   var BU=window.SGBUILD={ v:V, build:B, label:LABEL, str:function(){ return 'v'+V+' \u00b7 b'+B; }, fixes:0, mode:'' };
   function repoint(){ try{ var S=window.SGVER; if(!S){ window.SGVER={ v:V, build:B, LOG:[], str:function(){ return BU.str(); } }; BU.mode='created'; return; } var ok=true; ['v','build','str'].forEach(function(k){ try{ Object.defineProperty(S,k,{ configurable:true, enumerable:true, get:function(){ return k==='v'?V:k==='build'?B:function(){ return BU.str(); }; }, set:function(){} }); }catch(e){ ok=false; } }); BU.mode=ok?'repointed':'partial'; if(!ok){ try{ var NS={}; Object.keys(S).forEach(function(k){ if(['v','build','str'].indexOf(k)<0) NS[k]=S[k]; }); NS.v=V; NS.build=B; NS.str=function(){ return BU.str(); }; NS.LOG=S.LOG||[]; window.SGVER=NS; BU.mode='replaced'; }catch(e2){} } }catch(e){} }
   repoint();
@@ -35293,7 +35293,92 @@ setInterval(function(){ try{ if(document.body.classList.contains('tch')) return;
   },300);
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('sessionlog3: '+e); } })();
 </script>
-<!-- EM:END --><script type="text/plain" id="sg-orphan-b120-js">/*ORPHAN sealed b120: a previous session's edit landed after EM:END without its <script> opener; this text was rendering in the body. Inert. Delete when convenient.*/
+<!-- EM:END --><script id="sg-academy2-js">
+/*SG_ACADEMY2 (b131): pin the Star Academy to a real star system. /academy (while standing in it) stores the current system id in sg_academy_re; /academy list prints every known system id; /academy unpin clears. Other subcommands pass through to the original handler.*/
+(function(){ 'use strict'; try {
+  var g = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
+  var esc = function(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+  function systems(){ var out = []; try { var S = g('S'); if (S && S.sys && S.sys.id) out.push(S.sys.id + ' (here)'); } catch(e){}
+    ['SYSTEMS', 'SYS', 'systems', 'STARS', 'GALAXY', 'WORLDS'].forEach(function(n){ try { var T = g(n); if (!T) return; var L = Array.isArray(T) ? T : Object.keys(T).map(function(k){ return T[k] && typeof T[k] === 'object' ? T[k] : { id:k }; }); L.forEach(function(s){ var id = s && (s.id || s.key || s.name); if (id && out.indexOf(id) < 0) out.push(String(id)); }); } catch(e){} });
+    try { var P = window.SGPICKERTIERS2 || window.SGPICKER; if (P && P.rows) P.rows.forEach(function(r){ var id = r && (r.id || r[0]); if (id && out.indexOf(id) < 0) out.push(String(id)); }); } catch(e){}
+    return out; }
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd || !E.cmds || !E.cmds.academy){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    var orig = E.cmds.academy, origRun = orig && orig.run;
+    E.cmd('academy', { h:'Star Academy: /academy (pin to THIS system) | list | unpin | go | reset', admin:true, run:function(a){ var x = Array.isArray(a) ? a[0] : a;
+      if (x === 'list') return 'systems: ' + systems().join(' \u00b7 ');
+      if (x === 'unpin'){ try { localStorage.removeItem('sg_academy_re'); } catch(e){} return 'academy unpinned \u00b7 reload to apply'; }
+      if (!x){ var S = g('S'), id = S && S.sys && S.sys.id; if (!id) return 'no system loaded'; try { localStorage.setItem('sg_academy_re', esc(id)); } catch(e){} var base = ''; try { base = origRun ? String(origRun.call(orig, a)) : ''; } catch(e){} return 'Star Academy pinned to \u201c' + id + '\u201d \u00b7 reload to apply' + (base ? '\n' + base : ''); }
+      try { return origRun ? origRun.call(orig, a) : 'no handler'; } catch(e){ return 'academy: ' + e; } } });
+  } catch(e){ clearInterval(reg); } }, 500);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('academy2: ' + e); } })();
+</script>
+<script id="sg-worldpill2-js">
+/*SG_WORLDPILL2 (b131): the shared-field / Host pill, found by its TEXT (the id guess in sg-worldpill-js missed). Pinned fixed, centred, 2 px under the header. /worldpill prints what it found and where. Rules: no observers; cheap 2-s rescan only while nothing is found.*/
+(function(){ 'use strict'; try {
+  var P = window.SGWORLDPILL2 = { el:null, last:'', scans:0 };
+  var RX = /shared field|payla\u015f\u0131lan alan|ortak alan|\bhost\b|\bkonuk\b|\bguest\b|\u00b7\s*host/i;
+  var SKIP = /^(sg-doc|sg-ov|sg-comm|sg-chat|sg-qw|sg-qd|sg-tl|sg-tr|sg-bl|sg-inv2|sg-secdoc|sg-news|sg-mnu|sg-ec|toolbar)$/;
+  function inSkip(el){ var e = el; for (var i = 0; i < 8 && e && e !== document.body; i++){ if (SKIP.test(e.id || '') || /toast|overlay|panel|menu/i.test(e.className || '')) return true; e = e.parentElement; } return false; }
+  function positioned(el){ var e = el; for (var i = 0; i < 4 && e && e !== document.body; i++){ var cs = getComputedStyle(e); if (cs.position === 'fixed' || cs.position === 'absolute') return e; e = e.parentElement; } return null; }
+  function find(){ P.scans++; var all = document.body.querySelectorAll('div,span,b,i,em,small'); for (var i = 0; i < all.length; i++){ var el = all[i]; if (el.children.length > 2) continue; var t = (el.textContent || '').trim(); if (!t || t.length > 90 || !RX.test(t)) continue; if (inSkip(el)) continue; var r = el.getBoundingClientRect(); if (r.width < 30 || r.height < 8 || r.width > innerWidth*.9) continue; var box = positioned(el); if (!box) continue; return box; } return null; }
+  var lastScan = 0;
+  function tick(){ try { if (!P.el || !P.el.isConnected){ var now = Date.now(); if (now - lastScan < 2000) return; lastScan = now; P.el = find(); if (!P.el) return; }
+    var el = P.el, hdr = document.getElementById('board'), top = 2; try { if (hdr){ var hr = hdr.getBoundingClientRect(); top = Math.max(2, Math.round(hr.top) + 2); } } catch(e){}
+    var s = el.style, want = 'fixed'; if (s.getPropertyValue('position') !== want) s.setProperty('position', want, 'important'); if (s.getPropertyValue('top') !== top + 'px') s.setProperty('top', top + 'px', 'important'); if (s.getPropertyValue('left') !== '50%') s.setProperty('left', '50%', 'important'); if (s.getPropertyValue('transform') !== 'translateX(-50%)') s.setProperty('transform', 'translateX(-50%)', 'important'); if (s.getPropertyValue('right') !== 'auto') s.setProperty('right', 'auto', 'important'); if (s.getPropertyValue('bottom') !== 'auto') s.setProperty('bottom', 'auto', 'important'); if (s.getPropertyValue('z-index') !== '60') s.setProperty('z-index', '60', 'important'); if (s.getPropertyValue('margin') !== '0px') s.setProperty('margin', '0', 'important');
+    P.last = '#' + (el.id || '-') + ' .' + String(el.className || '').slice(0, 40) + ' @' + Math.round(el.getBoundingClientRect().left) + ',' + Math.round(el.getBoundingClientRect().top); } catch(e){ P.err = String(e); } }
+  setInterval(tick, 400);
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('worldpill', { h:'shared-field pill: /worldpill | rescan', admin:true, run:function(a){ var x = Array.isArray(a) ? a[0] : a; if (x === 'rescan'){ P.el = null; lastScan = 0; tick(); } return P.el ? 'worldpill ' + P.last + ' \u00b7 text \u201c' + (P.el.textContent || '').trim().slice(0, 60) + '\u201d \u00b7 scans ' + P.scans : 'worldpill not found (scans ' + P.scans + ') \u2014 is the shared field on? (/world)'; } });
+  } catch(e){ clearInterval(reg); } }, 500);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('worldpill2: ' + e); } })();
+</script>
+<script id="sg-tvkb-js">
+/*SG_TVKB (b131): phone chat follows the on-screen keyboard. Your probe showed #sg-comm at top 73 then drifting to 5 and -28 as iOS scrolled the layout viewport: the stylesheet's tv-kb rule (top:6px) was losing to the tvc-open bottom rule, and a fixed top ignores visualViewport.offsetTop. While body.tch.tvc-open.tv-kb: top = visualViewport.offsetTop + 6, bottom auto, max-height = 46% of the VISIBLE height, written inline !important and re-written while the keyboard animates; cleared when the keyboard closes so the stylesheet resumes. display/visibility stay owned by tvfix24.*/
+(function(){ 'use strict'; try {
+  var K = window.SGTVKB = { on:false, writes:0, last:'' };
+  var PROPS = ['top', 'bottom', 'max-height'];
+  function tick(){ try { var b = document.body; var kb = b.classList.contains('tch') && b.classList.contains('tvc-open') && b.classList.contains('tv-kb'); var el = document.getElementById('sg-comm'); if (!el) return; var s = el.style;
+    if (!kb){ if (K.on){ K.on = false; PROPS.forEach(function(p){ try { s.removeProperty(p); } catch(e){} }); } return; }
+    K.on = true; var vv = window.visualViewport, off = vv ? Math.round(vv.offsetTop || 0) : 0, vh = vv ? Math.round(vv.height) : innerHeight; var top = (off + 6) + 'px', mh = Math.max(120, Math.round(vh*.46)) + 'px';
+    if (s.getPropertyValue('top') !== top){ s.setProperty('top', top, 'important'); K.writes++; } if (s.getPropertyValue('bottom') !== 'auto'){ s.setProperty('bottom', 'auto', 'important'); K.writes++; } if (s.getPropertyValue('max-height') !== mh){ s.setProperty('max-height', mh, 'important'); K.writes++; }
+    K.last = 'off ' + off + ' vh ' + vh + ' top ' + top; } catch(e){ K.err = String(e); } }
+  setInterval(tick, 80); if (window.visualViewport){ visualViewport.addEventListener('resize', tick); visualViewport.addEventListener('scroll', tick); }
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.cmd){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg); E.cmd('tvkb', { h:'phone chat keyboard follow: /tvkb', admin:true, run:function(){ return 'tvkb ' + (K.on ? 'ACTIVE' : 'idle') + ' \u00b7 writes ' + K.writes + ' \u00b7 ' + K.last + (K.err ? ' \u00b7 err ' + K.err : ''); } }); } catch(e){ clearInterval(reg); } }, 500);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('tvkb: ' + e); } })();
+</script>
+<script id="sg-verbstorm-js">
+/*SG_VERBSTORM (b131): Fiil F\u0131rt\u0131nas\u0131 \u00b7 Verb Storm as a sixth space-weather event. Registered into SGWEATHER.EV (same row shape: [id, TR, EN, colour, warn TR, dur s]) so forecast/HUD/timing treat it like the other five. While active: letter rain (verb suffixes streak across the field) and every 2 s one verb asteroid enters from the storm edge. Spawn = clone of a LIVE asteroid (prefer tag 'verbs'; else any) with fresh id/pos/velocity, so the engine's asteroid shape is never guessed. /verbstorm | now | stop | report.*/
+(function(){ 'use strict'; try {
+  var g = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
+  var V = window.SGVERBSTORM = { on:false, spawned:0, skipped:0, src:'', t:0, acc:0, rain:[] };
+  var ROW = ['verbstorm', 'Fiil F\u0131rt\u0131nas\u0131', 'Verb Storm', '#6dffb0', 'Fiil f\u0131rt\u0131nas\u0131 yakla\u015f\u0131yor \u2014 fiiller alan\u0131 dolduracak', 50];
+  var SUF = ['-mek', '-mak', '-yor', '-di', '-ecek', '-acak', '-ebilir', '-meli', '-mal\u0131', '-in', '-iniz'];
+  var play = function(){ var S = g('S'), I = g('INT'); return !!(S && S.on && S.state === 'play' && S.ast && !(I && I.id)); };
+  function active(){ try { var W = window.SGWEATHER; return !!(W && W.W && W.W.cur && W.W.cur.ev && W.W.cur.ev[0] === 'verbstorm'); } catch(e){ return false; } }
+  function register(){ try { var W = window.SGWEATHER; if (!W || !Array.isArray(W.EV)) return false; if (!W.EV.some(function(r){ return r && r[0] === 'verbstorm'; })) W.EV.push(ROW); return true; } catch(e){ return false; } }
+  function template(S){ var A = S.ast || [], t = null; for (var i = 0; i < A.length; i++){ var a = A[i]; if (a && isFinite(a.x) && isFinite(a.y)){ if (!t) t = a; if (String(a.tag || a.cat || '') === 'verbs'){ V.src = 'verbs'; return a; } } } V.src = t ? 'any' : ''; return t; }
+  function spawn(){ try { var S = g('S'), T = template(S); if (!T){ V.skipped++; return; } var n = Object.assign({}, T); var side = Math.random() < .5 ? -1 : 1; n.x = side < 0 ? -40 : S.W + 40; n.y = S.H*(.15 + Math.random()*.7); var sp = 40 + Math.random()*30; if ('vx' in T || 'vy' in T){ n.vx = -side*sp; n.vy = (Math.random() - .5)*20; } else if ('dx' in T || 'dy' in T){ n.dx = -side*sp/60; n.dy = (Math.random() - .5)*20/60; }
+    n.id = 'vs_' + Date.now().toString(36) + '_' + V.spawned; if ('hp' in T) n.hp = T.hp; if ('age' in T) n.age = 0; if ('t' in T) n.t = 0; S.ast.push(n); V.spawned++; } catch(e){ V.err = String(e); V.skipped++; } }
+  function tick(dt){ try { var on = play() && active(); if (on !== V.on){ V.on = on; V.acc = 0; if (on){ V.rain = []; for (var i = 0; i < 60; i++) V.rain.push({ x:Math.random(), y:Math.random(), s:.6 + Math.random()*.9, k:(Math.random()*SUF.length)|0 }); } }
+    if (!on) return; V.t += dt; V.acc += dt; if (V.acc >= 2){ V.acc = 0; spawn(); }
+    V.rain.forEach(function(r){ r.x += dt*.18*r.s; r.y += dt*.05*r.s; if (r.x > 1.05){ r.x = -.05; r.y = Math.random(); } if (r.y > 1.05) r.y = -.05; }); } catch(e){ V.err = String(e); } }
+  function draw(c){ try { if (!V.on) return; var S = g('S'); c.save(); c.font = '700 12px "Share Tech Mono",monospace'; c.textAlign = 'left';
+    V.rain.forEach(function(r, i){ var x = r.x*S.W, y = r.y*S.H, a = .25 + .35*Math.sin(V.t*3 + i); c.globalAlpha = a; c.strokeStyle = 'rgba(109,255,176,.5)'; c.lineWidth = 1; c.beginPath(); c.moveTo(x - 26*r.s, y + 4); c.lineTo(x, y + 4); c.stroke(); c.fillStyle = i%3 ? '#6dffb0' : '#ffd76a'; c.fillText(SUF[r.k], x + 2, y + 8); });
+    c.globalAlpha = 1; c.restore(); } catch(e){ try { c.restore(); } catch(e2){} } }
+  var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E || !E.tick || !E.draw || !E.cmd || !register()){ if (++tries > 120) clearInterval(reg); return; } clearInterval(reg);
+    E.tick('verbstorm', tick, { order:68 }); E.draw('verbstorm', draw, { always:false, order:46 });
+    E.cmd('verbstorm', { h:'Verb Storm weather: /verbstorm | now | stop | report', admin:true, run:function(a){ var x = Array.isArray(a) ? a[0] : a, W = window.SGWEATHER;
+      if (x === 'now'){ try { W.start(ROW); } catch(e){ return 'start failed: ' + e; } return 'Verb Storm started (' + ROW[5] + ' s).'; }
+      if (x === 'stop'){ try { W.end(); } catch(e){} return 'Verb Storm ended.'; }
+      return 'verbstorm ' + (V.on ? 'ACTIVE' : 'idle') + ' \u00b7 registered ' + (W && W.EV ? W.EV.some(function(r){ return r[0] === 'verbstorm'; }) : false) + ' \u00b7 spawned ' + V.spawned + ' (template ' + (V.src || 'none') + ') \u00b7 skipped ' + V.skipped + (V.err ? ' \u00b7 err ' + V.err : ''); } });
+  } catch(e){ clearInterval(reg); } }, 500);
+} catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('verbstorm: ' + e); } })();
+</script>
+<script id="sg-notes131-js">
+/*SG_NOTES131: changelog line for v0.8.41 \u00b7 b131 (constants bumped in sg-build-js; sg-build-js writes its own b131 row with the b119 text, so this overwrites that row's text instead of adding a second).*/
+(function(){ try { var t = setInterval(function(){ var L = window.SGVER && SGVER.LOG; if (!Array.isArray(L)) return; clearInterval(t); var txt = 'Verb Storm as a 6th space-weather event (letter rain + verb asteroids every 2 s, cloned from a live asteroid; /verbstorm now|stop); Star Academy pinnable to a real system (/academy while standing in it; /academy list); shared-field Host pill found by text and pinned under the header (/worldpill); phone chat follows the keyboard (visualViewport offset, /tvkb); arc buttons by id incl. #tb-pow = chat.'; var row = null; for (var i = 0; i < L.length; i++){ if (L[i] && L[i].b === 131){ row = L[i]; break; } } if (row){ row.v = '0.8.41'; row.k = 'feat'; row.t = txt; } else L.unshift({ v:'0.8.41', b:131, k:'feat', t:txt }); }, 600); } catch(e){} })();
+</script>
+<script type="text/plain" id="sg-orphan-b120-js">/*ORPHAN sealed b120: a previous session's edit landed after EM:END without its <script> opener; this text was rendering in the body. Inert. Delete when convenient.*/
  marker with edit_html_content; never rewrite the whole file (too large; a cut-off would truncate it).', '- Each block ≤ ~7 KB with a header comment; one subsystem per call; retire old blocks by changing type to text/plain, never by deleting text blind.', '- Every edit bumps SGBUILD (V, B in sg-build-js) and adds a changelog line.', '- Verify by file size in the tool result; the Spline file can revert (reload before autosave) — check the Code tab for the new script id before copying to GitHub.');
     L.push('', '## Discipline rules (learned the hard way)', '- No MutationObserver that mutates what it watches (an observer brake disconnects >300 fires/s).', '- Simple selectors (a selector brake swallows invalid ones); no NaN into canvas colours (a gradient brake logs the offender).', '- Stylesheets must not contain mb-nochat / mc-open / tu- / #sg-hwbar: a disabler switches such sheets off — use attribute selectors like [id="sg-hwbar"].', '- One owner per HUD element; compare-before-write; touch UI = sg-tv*-js family; desktop window bar = #sg-hwbar (sg-hwbarfix2-js).', '- Game-code patches go through SGAPI.run with a role flip (server-admin gate otherwise).');
     L.push('', '## Tools (in-game, admin)', '⚙ Engine Map (Alt+M): Scan → Search → Slice to send me exact code; /syntax (parse check), /lasterrors, Boot Doctor (Alt+Shift+D → COPY ALL) for reports; /handoff (live state + params + edits); /plan (roadmap); /audit security|features; /security; /integrity; /dbcheck (DB tables); /cmds (every command); Guide (/guide) and Almanac (/almanac).');
