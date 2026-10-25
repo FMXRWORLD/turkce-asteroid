@@ -34238,6 +34238,41 @@ body.tch.tu2 #sg-bg,body.tch.tu2 #sg-ast,body.tch.tu2 #sg-fg{transform:scale(var
   },600);
 } catch(e){} })();
 </script>
+<script id="sg-tv-fix-js">
+/*SG_TV_FIX (touch UI v2, piece 7): makes v2 win over any older touch module still alive (your probe showed mb-* body classes from the b90 module and inline geometry on #sg-inv2). Inline !important geometry beats every stylesheet; foreign mb-/mc-open/tu- sheets are disabled; their body classes stripped; sg_tv saves no longer queue a cloud push; probe gains viewport size (the on-screen keyboard shrinks innerHeight, which is why bottom-anchored rects looked off while chat was open).*/
+(function(){ 'use strict'; try {
+  var TV=window.SGTV; if(!TV) return; var g=TV.g, P=TV.P, D=TV.DEF;
+  var set=function(el,k,v){ try{ if(el&&el.style.getPropertyValue(k)!==v) el.style.setProperty(k,v,'important'); }catch(e){} };
+  // 1. disable stylesheets that belong to retired touch modules (by their class signatures), never ours
+  var killed=0; function sheets(){ try{ Array.prototype.forEach.call(document.querySelectorAll('style'),function(s){ if(s.disabled||s.id==='sg-tv-css'||s.__tvok) return; var t=s.textContent||''; if(t.length>60000) return; if(/\.mb-nochat|\.mb-noqw|\.mb-notb|\.mc-open|\.mc-bar|\.tu-noradar|\.tu-chat|#sg-tu\b|#sg-tucol|#sg-turad|\.m7side|#sg-hwbar/.test(t)&&!/sg-tv/.test(t)){ s.disabled=true; killed++; } else s.__tvok=1; }); }catch(e){ TV.fail('sheets',e); } }
+  // 2. own the geometry of the game windows we place (inline !important)
+  function own(){ try{ if(!document.body.classList.contains('tv2')) return; var b=document.body; ['mb-nochat','mb-noqw','mb-notb','mb-noinv','mc-open','tu-on','tu-side','tu-chat','tu-noradar','tu-barup'].forEach(function(c){ if(b.classList.contains(c)) b.classList.remove(c); });
+    var cardT=P('cardTop',D.cardTop), cardL=P('cardLeft',D.cardLeft), cardW=P('cardW',D.cardW), barH=P('barH',D.barH), invH=P('invH',D.invH), joyB=P('joyBottom',D.joyBottom), colR=P('colRight',D.colRight), colT=P('colTop',D.colTop);
+    var inv=document.getElementById('sg-inv2'); if(inv){ set(inv,'position','fixed'); set(inv,'left',cardL+'px'); set(inv,'top',(cardT+92+barH+6)+'px'); set(inv,'bottom','auto'); set(inv,'width',cardW+'px'); set(inv,'max-height',invH+'px'); set(inv,'overflow','auto'); set(inv,'transform','none'); }
+    var bl=document.getElementById('sg-bl'); if(bl){ set(bl,'position','fixed'); set(bl,'left',cardL+'px'); set(bl,'top','auto'); set(bl,'bottom',(joyB+150)+'px'); set(bl,'width',cardW+'px'); set(bl,'transform','none'); }
+    var qw=document.getElementById('sg-qw'); if(qw){ set(qw,'position','fixed'); set(qw,'right',(colR+(TV.W.side?60:50))+'px'); set(qw,'left','auto'); set(qw,'top',(colT+70)+'px'); set(qw,'width','206px'); set(qw,'height','150px'); }
+    var cm=document.getElementById('sg-comm'); if(cm){ if(TV.W.chat){ set(cm,'display','block'); set(cm,'position','fixed'); set(cm,'left','8px'); set(cm,'right','8px'); set(cm,'width','auto'); set(cm,'top','auto'); set(cm,'z-index','66'); } else set(cm,'display','none'); }
+  }catch(e){ TV.fail('own',e); } }
+  sheets(); setInterval(sheets,3000); setInterval(own,250);
+  // 3. sg_tv saves ride along with real progress instead of queuing their own push
+  try{ var o=TV.save; TV.save=function(){ var Y=window.SGSYNC, was=Y&&Y.C?Y.C.on:null; try{ if(Y&&Y.C) Y.C.on=0; o(); } finally { if(Y&&Y.C&&was!=null) Y.C.on=was; } }; }catch(e){}
+  // 4. probe: add viewport + killed sheets
+  TV.extra=function(){ return 'viewport '+innerWidth+'x'+innerHeight+(window.visualViewport?' visual '+Math.round(visualViewport.width)+'x'+Math.round(visualViewport.height):'')+' \u00b7 sheets disabled '+killed; };
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('tv-fix: '+e); } })();
+</script>
+<script id="sg-fetchfix-js">
+/*SG_FETCHFIX: collapses a doubled "/rest/v1/rest/v1/" in any request URL (the eid-bindings pull built it twice → 404 every minute in your report). Wraps window.fetch once; everything else passes through untouched.*/
+(function(){ try { if(window.fetch&&!window.fetch.__sgfix){ var o=window.fetch; var w=function(u,opt){ try{ if(typeof u==='string'&&u.indexOf('/rest/v1/rest/v1/')>=0) u=u.replace(/\/rest\/v1\/rest\/v1\//g,'/rest/v1/'); else if(u&&typeof u==='object'&&u.url&&u.url.indexOf('/rest/v1/rest/v1/')>=0) u=new Request(u.url.replace(/\/rest\/v1\/rest\/v1\//g,'/rest/v1/'),u); }catch(e){} return o.call(this,u,opt); }; w.__sgfix=1; window.fetch=w; } } catch(e){} })();
+</script>
+<script id="sg-tv-docs2-js">
+/*SG_TV_DOCS2: b107 bump + changelog; touchui probe gains the viewport line.*/
+(function(){ try {
+  if(window.SGBUILD_SET) SGBUILD_SET('0.8.17',107); else { try{ var V=window.SGVER; if(V){ Object.defineProperty(V,'v',{ value:'0.8.17', configurable:true }); Object.defineProperty(V,'build',{ value:107, configurable:true }); } }catch(e){} }
+  var t=setInterval(function(){ var V=window.SGVER; if(!V||!Array.isArray(V.LOG)) return; clearInterval(t); V.LOG.unshift({ v:'0.8.17', b:107, k:'fix', t:'Touch UI v2 wins over leftover touch modules (their stylesheets disabled, body classes stripped, window geometry owned inline); eid-bindings doubled URL fixed; sg_tv saves no longer push alone; probe shows viewport size (on-screen keyboard shrinks it).' });
+    try{ var E=window.SGENG, c=E&&E.cmds&&E.cmds.touchui; if(c&&c.run&&!c.__x){ var r=c.run; c.__x=1; c.run=function(a){ var out=r.apply(this,arguments); try{ var x=Array.isArray(a)?a[0]:a; if(x==='probe'&&window.SGTV&&SGTV.extra) out=SGTV.extra()+'\n'+out; }catch(e){} return out; }; } }catch(e){}
+  },600);
+} catch(e){} })();
+</script>
 <!-- EM:END -->
 <script type="text/plain" data-retired="truncated star-template core; rebuilt as sg-stellar-js" id="sg-star-js">
 /*SG_STAR: star-system template — class, colour, age, size, volatility per system. sg_stars is CONTENT (every player). Drives the drawn star, ambient tint, flare frequency and the banner line. Base for Expansion 4.*/
