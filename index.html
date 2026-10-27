@@ -31279,7 +31279,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 <script id="sg-build-js">
 /*SG_BUILD: the ONE place the version lives. Bump V and B here; everything else (stamp, /version, Guide, News) reads SGVER which is re-pointed at this object. Earlier bump scripts changed values a locked getter had already captured — hence the stale stamp.*/
 (function(){ 'use strict'; try {
-  var V='0.8.74', B=164, LABEL='Alpha v'+V+' \u00b7 b'+B;
+  var V='0.8.77', B=167, LABEL='Alpha v'+V+' \u00b7 b'+B;
   var BU=window.SGBUILD={ v:V, build:B, label:LABEL, str:function(){ return 'v'+V+' \u00b7 b'+B; }, fixes:0, mode:'' };
   function repoint(){ try{ var S=window.SGVER; if(!S){ window.SGVER={ v:V, build:B, LOG:[], str:function(){ return BU.str(); } }; BU.mode='created'; return; } var ok=true; ['v','build','str'].forEach(function(k){ try{ Object.defineProperty(S,k,{ configurable:true, enumerable:true, get:function(){ return k==='v'?V:k==='build'?B:function(){ return BU.str(); }; }, set:function(){} }); }catch(e){ ok=false; } }); BU.mode=ok?'repointed':'partial'; if(!ok){ try{ var NS={}; Object.keys(S).forEach(function(k){ if(['v','build','str'].indexOf(k)<0) NS[k]=S[k]; }); NS.v=V; NS.build=B; NS.str=function(){ return BU.str(); }; NS.LOG=S.LOG||[]; window.SGVER=NS; BU.mode='replaced'; }catch(e2){} } }catch(e){} }
   repoint();
@@ -36920,7 +36920,7 @@ M.add({ id:'social', admin:0, tr:'Notlar, sohbet, s\u0131n\u0131f', title:'Atlas
   } catch(e){ clearInterval(reg); } }, 500);
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('srcline2: ' + e); } })();
 </script>
-<script id="sg-smooth3-js">
+<script type="text/plain" id="sg-smooth3-js">
 /*SG_SMOOTH3 (b164): interpolated rendering (plan B, part 2). /smoothdrv proved: rAF-gated sgLoop -> sgUpdate (fixed 50 ms step) + separable sgRender. The sim stays 20 Hz; sgRender is wrapped so that right before it draws, every moving thing (ship, camera, S.t, asteroids, npcs, rocks, comets, shots, pickups, messages) is set to prev + (cur-prev)*alpha, alpha = time since the last tick / tick period; restored right after. Teleports (>160 u) snap. Our own rAF calls the wrapped render on frames where sgLoop did not tick, so drawing runs at display rate (touch: every other frame = 30 fps). Asteroid DOM bubbles get a transform transition of one tick period. Default ON; /smooth off|on|30|60 persists. Auto-off after 3 errors.*/
 (function(){ 'use strict'; try {
   var g = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
@@ -36958,7 +36958,64 @@ M.add({ id:'social', admin:0, tr:'Notlar, sohbet, s\u0131n\u0131f', title:'Atlas
   } catch(e){ clearInterval(reg); } }, 500);
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('smooth3: ' + e); } })();
 </script>
-<script id="sg-statusbar-js">
+<script id="sg-pillvault-js">
+/*SG_PILLVAULT (b165, re-applied b167): ONE owner for the centre pills. Every fixed, centred pill in the top band (altitude, shared-field, lap, lantern, drag...) is MOVED into a display:none vault - a hidden parent beats any inline style, so no owner can bring it back on screen - while its owner keeps updating the text there. One glass bar (#sg-statusbar2) mirrors those texts under the mission window (#sg-tc). Host -> SUNUCU, ortak alan -> ALAN. /pillvault reports.*/
+(function(){ 'use strict'; try {
+  var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
+  var PV=window.SGPILLVAULT={ vaulted:{}, sweeps:0, escapes:0, bar:null, vault:null, last:'' };
+  var SKIP=/^(sg-tc|sg-tl|sg-tr|sg-build|sg-banner|sg-statusbar2|sg-pvault|sg-hud|sg-ov|sg-doc|app|board|sg-chs|sg-bc)$/;
+  function vault(){ var v=PV.vault||document.getElementById('sg-pvault'); if(!v){ v=document.createElement('div'); v.id='sg-pvault'; v.setAttribute('style','display:none!important;position:fixed;left:-9999px;top:-9999px;width:0;height:0;overflow:hidden'); document.body.appendChild(v); } PV.vault=v; return v; }
+  function bar(){ var b=PV.bar||document.getElementById('sg-statusbar2'); if(!b){ b=document.createElement('div'); b.id='sg-statusbar2'; b.style.cssText='position:fixed;z-index:23;left:50%;top:136px;transform:translateX(-50%);max-width:min(720px,calc(100vw - 24px));padding:3px 12px;border-radius:12px;background:rgba(6,14,18,.82);border:1px solid rgba(109,255,176,.35);color:#cfe;font:11px/1.5 "Share Tech Mono",monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;display:none'; document.body.appendChild(b); } PV.bar=b; return b; }
+  function isPill(el){ if(!el||el.nodeType!==1||!el.id||SKIP.test(el.id)) return false; if(/^(SCRIPT|STYLE|CANVAS|SVG)$/.test(el.tagName)) return false; if(el.closest('#sg-hud,#sg-pvault,#sg-ov,#sg-doc,#sg-tc')) return false; var cs=getComputedStyle(el); if(cs.position!=='fixed') return false; var r=el.getBoundingClientRect(); if(r.height<8||r.height>44||r.width<100||r.width>640) return false; var cx=r.left+r.width/2; if(Math.abs(cx-innerWidth/2)>innerWidth*.26) return false; if(r.top<0||r.top>230) return false; var t=(el.textContent||'').trim(); if(!t||t.length>160) return false; return true; }
+  function clean(t){ return String(t).replace(/\s+/g,' ').replace(/ortak alan/ig,'ALAN').replace(/shared field/ig,'ALAN').replace(/\bHost\b/g,'SUNUCU').replace(/\bHOST\b/g,'SUNUCU').replace(/\bclient\b/ig,'konuk').replace(/·\s*·/g,'·').trim(); }
+  function sweep(){ try{ PV.sweeps++; var v=vault(); Array.prototype.slice.call(document.body.children).forEach(function(el){ if(isPill(el)){ v.appendChild(el); PV.vaulted[el.id]=1; } }); Object.keys(PV.vaulted).forEach(function(id){ var el=document.getElementById(id); if(el&&el.parentNode!==v){ PV.escapes++; v.appendChild(el); } });
+    var S=g('S'), ov=document.getElementById('sg-ov'), play=!!(S&&S.on&&S.state==='play')&&!(ov&&ov.classList.contains('open')); var b=bar(); if(!play){ b.style.display='none'; return; }
+    var segs=[], seen={}; Object.keys(PV.vaulted).forEach(function(id){ var el=document.getElementById(id); if(!el) return; var cs=el.style; if(cs.display==='none'||cs.visibility==='hidden'||(cs.opacity!==''&&+cs.opacity<.05)) return; var t=clean(el.textContent||''); if(!t||seen[t]) return; seen[t]=1; segs.push(t); });
+    if(!segs.length){ b.style.display='none'; return; } var txt=segs.join('   │   '); if(txt!==PV.last){ PV.last=txt; b.textContent=txt; } b.style.display='block';
+    var tc=document.getElementById('sg-tc'), top=136, left=null; if(tc){ var tr=tc.getBoundingClientRect(); if(tr.width>40){ top=Math.round(tr.bottom+6); left=Math.round(tr.left+tr.width/2); } } if(Math.abs(parseFloat(b.style.top)-top)>1) b.style.top=top+'px'; if(left!=null){ var want=left+'px'; if(b.style.left!==want){ b.style.left=want; } } }catch(e){ PV.err=String(e); } }
+  setInterval(sweep,250); setTimeout(sweep,800);
+  var tries=0,reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('pillvault',{ h:'centre pills: one bar under the mission window. /pillvault', admin:true, run:function(){ var b=bar(), r=b.getBoundingClientRect(); return 'vaulted '+Object.keys(PV.vaulted).join(',')+' \u00b7 sweeps '+PV.sweeps+' escapes '+PV.escapes+' \u00b7 bar '+Math.round(r.left)+','+Math.round(r.top)+' '+Math.round(r.width)+'x'+Math.round(r.height)+' '+b.style.display+' \u00b7 "'+PV.last.slice(0,90)+'"'+(PV.err?' \u00b7 err '+PV.err:''); } });
+  }catch(e){ clearInterval(reg); } },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('pillvault: '+e); } })();
+</script>
+<script id="sg-fix165-js">
+/*SG_FIX165 (re-applied b167): (1) smooth renderer OFF (its snapshot ran as a tick hook = before Script 1 moved the ship, then restored it after render -> the ship could not fly); (2) the tr[0]/t[0] throwers are sgBanner + the title card reading SGS_TR[sp.star] - fill missing star rows for every category (and a safe sgBanner wrapper as belt); (3) rim cache re-rendered 4x/s while flying fast so it cannot be outrun. /fix165 reports.*/
+(function(){ 'use strict'; try {
+  var F=window.SGFIX165={ stars:0, pokes:0, cacheName:'', banner:false, smooth:'-' };
+  var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
+  var runP=function(code){ var E=window.SGENG,A=window.SGAPI; if(!E||!A||!A.run) return undefined; var was=E.role; try{ E.role='admin'; return A.run(code); } finally { E.role=was; } };
+  function smoothOff(){ try{ var M=window.SGSMOOTH3; if(M){ M.on=false; if(M.off) M.off(); } Object.keys(localStorage).forEach(function(k){ if(/^sg_smooth/.test(k)) localStorage.removeItem(k); }); F.smooth=M?'present-off':'absent'; }catch(e){} }
+  function fixStars(){ try{ var TR=g('SGS_TR'); if(!TR) TR=runP("(function(){ try{ return SGS_TR; }catch(e){ return null; } })()"); if(!TR||typeof TR!=='object'){ F.stars=-1; return; } var fill=function(k){ if(k==null) k='undefined'; if(!Array.isArray(TR[k])||TR[k].length<2){ TR[k]=[String(k==='undefined'?'y\u0131ld\u0131z':k),String(k==='undefined'?'star':k)]; F.stars++; } }; fill(undefined); fill('undefined'); var C=g('CATEGORIES')||[]; C.forEach(function(c){ if(c) fill(c.star); }); var S=g('S'); if(S&&S.sys) fill(S.sys.star); }catch(e){ F.err=String(e); } }
+  function wrapBanner(){ try{ if(F.banner) return; var r=runP("(function(){ try{ if(typeof sgBanner!=='function'||sgBanner.__f165) return 'no'; var _b=sgBanner; sgBanner=function(sp){ try{ return _b.apply(this,arguments); }catch(e){ try{ if(typeof sgBan!=='undefined'&&sgBan) sgBan.innerHTML='<b>'+escapeHtml((sp&&sp.name)||'')+' Sistemi</b>'; }catch(e2){} } }; sgBanner.__f165=1; return 'ok'; }catch(e){ return 'err '+e; } })()"); F.banner=(r==='ok'); }catch(e){} }
+  function cache(){ if(F.cacheObj) return F.cacheObj; try{ var ks=Object.keys(window); for(var i=0;i<ks.length;i++){ if(ks[i].indexOf('SG')!==0) continue; var o=window[ks[i]]; if(o&&typeof o==='object'&&'blits' in o&&'key' in o&&'renders' in o){ F.cacheObj=o; F.cacheName=ks[i]; return o; } } }catch(e){} return null; }
+  var acc=0, lastT=0;
+  function tick(dt){ try{ var S=g('S'); if(!S||!S.ship) return; var v=Math.hypot(S.ship.vx||0,S.ship.vy||0); if(v<150) return; acc+=dt; if(acc<.25) return; acc=0; var c=cache(); if(c){ c.key=''; F.pokes++; } }catch(e){} }
+  smoothOff(); setTimeout(smoothOff,1500);
+  var tries=0,reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd||!E.tick){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg);
+    fixStars(); wrapBanner(); try{ E.on&&E.on('system:load',function(){ fixStars(); }); }catch(e){} E.tick('fix165',tick,{ order:3 });
+    E.cmd('fix165',{ h:'b165 fixes: /fix165', admin:true, run:function(){ fixStars(); return 'stars fixed '+F.stars+' \u00b7 banner wrapped '+F.banner+' \u00b7 cache '+(F.cacheName||'none')+' pokes '+F.pokes+' \u00b7 smooth '+F.smooth+(F.err?' \u00b7 err '+F.err:''); } });
+  }catch(e){ clearInterval(reg); } },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('fix165: '+e); } })();
+</script>
+<script id="sg-fix166-js">
+/*SG_FIX166 (re-applied b167): the stuck ship. Script 1's loop is hkRun('tick') -> rgU(dt): hooks first, THEN its own physics - so the smooth renderer's tick-hook snapshot captured the ship BEFORE it moved and restored that after every render, undoing all flight. smooth3 is retired at the tag; /smoothkill checks nothing restores; /stuck prints everything that can pin a ship (speed, dome r, landed state, smooth, control keys); /stuck release clears the pins.*/
+(function(){ 'use strict'; try {
+  var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
+  var K=window.SGFIX166={ releases:0 };
+  function smoothKill(){ var out=[]; try{ var M=window.SGSMOOTH3; if(M){ M.on=false; try{ M.off&&M.off(); }catch(e){} out.push('smooth3 forced off'); } Object.keys(localStorage).forEach(function(k){ if(/^sg_smooth/.test(k)){ localStorage.removeItem(k); out.push('cleared '+k); } }); var tag=document.getElementById('sg-smooth3-js'); out.push('smooth3 tag '+(tag?(tag.type==='text/plain'?'retired':'LIVE'):'absent')); var wrapped=0; try{ var E=window.SGENG,A=window.SGAPI; if(E&&A&&A.run){ var was=E.role; try{ E.role='admin'; var s=String(A.run('(function(){ try{ return String(sgRender).slice(0,120); }catch(e){ return ""; } })()')||''); if(/alpha|interp|restore/i.test(s)) wrapped=1; } finally { E.role=was; } } }catch(e){} out.push('wrappers found '+wrapped); }catch(e){ out.push('err '+e); } return out.join(' \u00b7 '); }
+  function dome(){ var D=window.SGDOME; return D||null; }
+  function release(){ var out=[]; try{ var S=g('S'); if(!S||!S.ship) return 'no ship'; var L=window.SGLAND; if(L){ var st=L.state||L.S||L; ['landed','approach','pad','st'].forEach(function(k){ if(st&&k in st&&st[k]){ st[k]=(k==='st'?'idle':null); out.push('land.'+k+' cleared'); } }); if(typeof L.release==='function'){ try{ L.release(); out.push('land.release()'); }catch(e){} } } var D=dome(); if(D&&typeof D.r==='function'){ var r=D.r(S.ship.x,S.ship.y); if(r>0.98){ var cx=S.W/2, cy=S.H/2, f=0.9/r; S.ship.x=cx+(S.ship.x-cx)*f; S.ship.y=cy+(S.ship.y-cy)*f; out.push('pulled inside to r .9 (was '+r.toFixed(3)+')'); } } S.ship.vx=0; S.ship.vy=0; K.releases++; }catch(e){ out.push('err '+e); } return out.length?out.join(' \u00b7 '):'nothing to release'; }
+  function stuck(){ var L=[]; try{ var S=g('S'),KK=g('K'); if(!S||!S.ship) return 'no S'; var sh=S.ship, v=Math.hypot(sh.vx||0,sh.vy||0); L.push('ship '+Math.round(sh.x)+','+Math.round(sh.y)+' v '+v.toFixed(1)+' a '+(+sh.a).toFixed(2)); var D=dome(); if(D&&typeof D.r==='function'){ var r=D.r(sh.x,sh.y); L.push('dome '+(D.on?'on':'off')+' r '+r.toFixed(3)+(r>1?' OUTSIDE':'')+' surf '+(D.surf!=null?D.surf:'?')); } var LD=window.SGLAND; if(LD){ var st=LD.state||LD.S||LD; L.push('land '+(st.st||(st.landed?'landed':st.approach?'approach':'idle'))); } var M=window.SGSMOOTH3; L.push('smooth '+(M?(M.on?'ON':'off'):'absent')); if(KK) L.push('keys up '+!!KK.up+' left '+!!KK.left+' right '+!!KK.right+' down '+!!KK.down+' fire '+!!KK.fire); L.push('state '+S.state+' on '+S.on+' slow '+(S.pw&&S.pw.slow)); var INT=g('INT'); if(INT&&INT.id) L.push('interior '+INT.id); L.push('releases '+K.releases); }catch(e){ L.push('err '+e); } return L.join(' \u00b7 '); }
+  try{ var LG=window.SGVER&&SGVER.LOG; if(Array.isArray(LG)&&!LG.some(function(x){ return x&&x.b===167; })) LG.unshift({ v:'0.8.77', b:167, k:'fix', t:'Stuck ship fixed: the smooth renderer snapshotted the ship before Script 1 moved it and restored that after every render - retired. Centre pills: originals moved into a hidden vault, one status bar mirrors them under the mission window. SGS_TR star rows filled (tr[0] throws in sgBanner/title card). Rim cache re-rendered while flying fast. /stuck, /smoothkill, /pillvault, /fix165. (b165-b166 re-applied after the editor reverted them.)' }); }catch(e){}
+  var tries=0,reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('stuck',{ h:'why the ship will not move: /stuck | release', admin:true, run:function(a){ var x=Array.isArray(a)?a[0]:a; if(x==='release') return release(); return stuck(); } });
+    E.cmd('smoothkill',{ h:'make sure the smooth renderer is gone: /smoothkill', admin:true, run:function(){ return smoothKill(); } });
+    setTimeout(smoothKill,2000);
+  }catch(e){ clearInterval(reg); } },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('fix166: '+e); } })();
+</script>
+<script type="text/plain" id="sg-statusbar-js">
 /*SG_STATUSBAR (b164): the centre-UI overhaul. Root cause of the "freaking out": four stackers from different builds (fix142/153/155/159 + sg-pills) all positioning the same pills, and worldpill2 cloning any element whose text says Host. Now ONE glass bar under the mission window (#sg-tc) MIRRORS the text of every centre pill (altitude, shared-field, lap, lantern, drag, anything fixed+centred in the top band) and hides the originals (visibility, so their owners keep updating them and measuring them). The bar never contains the words Host / shared field (it says SUNUCU) so worldpill2 cannot re-clone it. /statusbar reports. 6 Hz refresh, no observers.*/
 (function(){ 'use strict'; try {
   var B = window.SGSTATUSBAR = { el:null, refresh:0, keys:[], err:'' };
