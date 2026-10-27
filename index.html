@@ -31279,7 +31279,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 <script id="sg-build-js">
 /*SG_BUILD: the ONE place the version lives. Bump V and B here; everything else (stamp, /version, Guide, News) reads SGVER which is re-pointed at this object. Earlier bump scripts changed values a locked getter had already captured — hence the stale stamp.*/
 (function(){ 'use strict'; try {
-  var V='0.8.77', B=167, LABEL='Alpha v'+V+' \u00b7 b'+B;
+  var V='0.8.78', B=168, LABEL='Alpha v'+V+' \u00b7 b'+B;
   var BU=window.SGBUILD={ v:V, build:B, label:LABEL, str:function(){ return 'v'+V+' \u00b7 b'+B; }, fixes:0, mode:'' };
   function repoint(){ try{ var S=window.SGVER; if(!S){ window.SGVER={ v:V, build:B, LOG:[], str:function(){ return BU.str(); } }; BU.mode='created'; return; } var ok=true; ['v','build','str'].forEach(function(k){ try{ Object.defineProperty(S,k,{ configurable:true, enumerable:true, get:function(){ return k==='v'?V:k==='build'?B:function(){ return BU.str(); }; }, set:function(){} }); }catch(e){ ok=false; } }); BU.mode=ok?'repointed':'partial'; if(!ok){ try{ var NS={}; Object.keys(S).forEach(function(k){ if(['v','build','str'].indexOf(k)<0) NS[k]=S[k]; }); NS.v=V; NS.build=B; NS.str=function(){ return BU.str(); }; NS.LOG=S.LOG||[]; window.SGVER=NS; BU.mode='replaced'; }catch(e2){} } }catch(e){} }
   repoint();
@@ -36751,7 +36751,7 @@ M.add({ id:'social', admin:0, tr:'Notlar, sohbet, s\u0131n\u0131f', title:'Atlas
   } catch(e){ clearInterval(reg); } }, 500);
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('rimworld: ' + e); } })();
 </script>
-<script id="sg-perf159-js">
+<script type="text/plain" id="sg-perf159-js">
 /*SG_PERF159: (1) Height at the source: SGWORLDSIZE.H/W are set to the wanted size at every system:load (E.on) and the engine's own layout re-run (/worldsize rebuild) so Script 1 builds the field at 3800 from the first frame - no station jump. (2) Static rim layers (rim157 ground band, rimworld scenery, rimart silhouettes, atmo2 rings) are rendered ONCE per (system, world size, viewport) into an offscreen canvas the size of the viewport+margin and blitted every frame; re-rendered when the camera moves > 240 units or every 700 ms (keeps their slow animations), so the per-frame cost drops from ~500 path fills to one drawImage. (3) Thrower guard: the two Script 1 lines that throw every tick (t[0] @10811, tr[0] @11057) are shown by /perf159 src so the next build can wrap them. (4) ONE stack owner for the top-centre pills (all earlier stackers disabled). /perf159.*/
 (function(){ 'use strict'; try {
   var g = function(n){ try { return window.SGAPI && SGAPI.get ? SGAPI.get(n) : undefined; } catch(e){ return undefined; } };
@@ -37014,6 +37014,44 @@ M.add({ id:'social', admin:0, tr:'Notlar, sohbet, s\u0131n\u0131f', title:'Atlas
     setTimeout(smoothKill,2000);
   }catch(e){ clearInterval(reg); } },500);
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('fix166: '+e); } })();
+</script>
+<script id="sg-render168-js">
+/*SG_RENDER168 (b168): ONE owner of the frame's pixel size. The whole-screen flicker since b162 = two writers disagreeing on devicePixelRatio (fix162 forcing 1, Script 1's resize rebuilding the canvases at 2): every canvas width/height write CLEARS the canvas, so each alternation was a blank frame. Now window.devicePixelRatio itself is a getter (default 1, persisted; /dpr 2|reset), Script 1's sgDpr follows it on every resize, and the three game canvases get instance-level width/height guards: same-value writes skipped, writes at the OTHER ratio rejected (counted). /render168 reports.*/
+(function(){ 'use strict'; try {
+  var R=window.SGRENDER168={ dpr:1, nat:1, skipped:0, rejected:0, allowed:0, guarded:[], srcSet:0, src:'-', err:'' };
+  var KEY='sg_dpr168'; try{ var v=parseFloat(localStorage.getItem(KEY)||''); if(v>0&&v<=3) R.dpr=v; }catch(e){}
+  try{ var nd=Object.getOwnPropertyDescriptor(window,'devicePixelRatio'); R.nat=(nd&&nd.get)?nd.get.call(window):(window.devicePixelRatio||1); }catch(e){ R.nat=window.devicePixelRatio||1; }
+  try{ Object.defineProperty(window,'devicePixelRatio',{ configurable:true, get:function(){ return R.dpr; }, set:function(){} }); R.getter=true; }catch(e){ R.getter=false; R.err='getter '+e; }
+  var runP=function(code){ var E=window.SGENG,A=window.SGAPI; if(!E||!A||!A.run) return undefined; var was=E.role; try{ E.role='admin'; return A.run(code); } finally { E.role=was; } };
+  function setSrc(){ try{ var r=runP('(function(){ try{ if(typeof sgDpr!=="undefined"){ sgDpr='+R.dpr+'; return "ok"; } return "no sgDpr"; }catch(e){ return "err "+e; } })()'); if(r==='ok') R.srcSet++; if(r!=null) R.src=String(r); }catch(e){} }
+  var dW=Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype,'width'), dH=Object.getOwnPropertyDescriptor(HTMLCanvasElement.prototype,'height');
+  function guard(cv){ if(!cv||cv.__r168||!dW||!dH||!dW.set) return; cv.__r168=1; R.guarded.push(cv.id||'?');
+    [['width',dW,'clientWidth'],['height',dH,'clientHeight']].forEach(function(q){ var p=q[0],d=q[1],cp=q[2]; Object.defineProperty(cv,p,{ configurable:true, get:function(){ return d.get.call(cv); }, set:function(v){ v=Math.round(+v)||0; var cur=d.get.call(cv); if(v===cur){ R.skipped++; return; } var css=cv[cp]||0, want=Math.round(css*R.dpr), other=Math.round(css*R.nat); if(css>0&&R.nat!==R.dpr&&Math.abs(v-other)<=2&&Math.abs(v-want)>2){ R.rejected++; return; } R.allowed++; d.set.call(cv,v); } }); }); }
+  function apply(){ setSrc(); ['sg-fg','sg-bg','sg-skyc'].forEach(function(id){ var cv=document.getElementById(id); if(!cv) return; guard(cv); var w=Math.round(cv.clientWidth*R.dpr), h=Math.round(cv.clientHeight*R.dpr); if(w>0&&h>0){ if(dW.get.call(cv)!==w){ R.allowed++; dW.set.call(cv,w); } if(dH.get.call(cv)!==h){ R.allowed++; dH.set.call(cv,h); } } }); }
+  R.apply=apply; R.setSrc=setSrc;
+  setTimeout(apply,600); var n=0, iv=setInterval(function(){ try{ if(R.srcSet>0||++n>40){ clearInterval(iv); return; } setSrc(); }catch(e){} },500);
+  setInterval(function(){ try{ ['sg-fg','sg-bg','sg-skyc'].forEach(function(id){ guard(document.getElementById(id)); }); }catch(e){} },1500);
+  window.addEventListener('resize',function(){ setTimeout(setSrc,0); setTimeout(setSrc,80); });
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('render168: '+e); } })();
+</script>
+<script id="sg-render168b-js">
+/*SG_RENDER168B (b168): perf159's offscreen rim cache is retired - its timed re-render (plus fix165's 4x/s pokes) was the ground flashing in and out, and its camera offset lagged the real camera, which read as odd collisions at the rim. The rim/atmosphere/scenery layers draw LIVE again (they are cheap at dpr 1: cached Path2D rings, culled silhouettes, one even-odd fill). Presize (world height written on system:load/run:start so the station never jumps) is re-added here. /dpr 1|2|reset, /render168 report.*/
+(function(){ 'use strict'; try {
+  var g=function(n){ try{ return window.SGAPI&&SGAPI.get?SGAPI.get(n):undefined; }catch(e){ return undefined; } };
+  var B=window.SGRENDER168B={ presize:0, unwrapped:0, layersOn:[] };
+  function unwrap(){ try{ var E=window.SGENG; if(!E||!E.hookData) return; var H=E.hookData(); (H.draw||[]).forEach(function(h){ if(/^(perf159|rimcache|cache159)/i.test(h.name)){ if(!h.off){ h.off=true; B.unwrapped++; } } if(/^(rim157|rimart|rimworld|atmo2)$/.test(h.name)){ if(h.off){ h.off=false; } if(B.layersOn.indexOf(h.name)<0) B.layersOn.push(h.name); } }); var P=window.SGPERF159; if(P){ P.on=false; P.cache=null; } }catch(e){ B.err=String(e); } }
+  function presize(){ try{ var S=g('S'), WS=window.SGWORLDSIZE, T=window.SGWORLDTALL, want=(T&&(T.H||T.want))||3800; if(WS){ WS.H=want; } if(S){ S.H=want; } B.presize++; }catch(e){} }
+  function report(){ var R=window.SGRENDER168||{}, L=['RENDER168 \u00b7 dpr '+R.dpr+' (native '+R.nat+') getter '+R.getter+' \u00b7 sgDpr '+R.src+' set '+R.srcSet+' \u00b7 guards '+(R.guarded||[]).join(',')+' \u00b7 writes allowed '+R.allowed+' skipped '+R.skipped+' REJECTED '+R.rejected+(R.err?' \u00b7 '+R.err:'')];
+    ['sg-fg','sg-bg','sg-skyc'].forEach(function(id){ var cv=document.getElementById(id); if(cv) L.push('  '+id+' '+cv.width+'x'+cv.height+' css '+cv.clientWidth+'x'+cv.clientHeight+' ratio '+(cv.clientWidth?(cv.width/cv.clientWidth).toFixed(2):'-')); });
+    var tag=document.getElementById('sg-perf159-js'); L.push('  perf159 tag '+(tag?(tag.type==='text/plain'?'retired':'LIVE'):'absent')+' \u00b7 unwrapped '+B.unwrapped+' \u00b7 live layers '+B.layersOn.join(',')+' \u00b7 presize '+B.presize+(B.err?' \u00b7 err '+B.err:''));
+    try{ var E=window.SGENG, H=E&&E.hookData&&E.hookData(); if(H){ var off=(H.draw||[]).filter(function(h){ return h.off; }).map(function(h){ return h.name; }); L.push('  draw hooks off: '+(off.join(',')||'none')); } }catch(e){} return L.join('\n'); }
+  try{ var LG=window.SGVER&&SGVER.LOG; if(Array.isArray(LG)&&!LG.some(function(x){ return x&&x.b===168; })) LG.unshift({ v:'0.8.78', b:168, k:'fix', t:'Whole-screen flicker: one owner for devicePixelRatio (getter, default 1) + canvas size guards - the fix162/Script-1 dpr fight cleared the fg canvas on every alternation. Ground flashes + odd rim collisions: perf159 offscreen cache retired, rim/atmosphere layers draw live. Presize kept. /dpr, /render168.' }); }catch(e){}
+  var tries=0,reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg);
+    unwrap(); setTimeout(unwrap,2500); presize(); try{ E.on&&E.on('system:load',presize); E.on&&E.on('run:start',presize); }catch(e){}
+    setTimeout(function(){ E.cmd('dpr',{ h:'canvas pixel ratio: /dpr 1|2|reset (reload to apply)', admin:true, run:function(a){ var x=Array.isArray(a)?a[0]:a, R=window.SGRENDER168; if(x==='reset'){ try{ localStorage.removeItem('sg_dpr168'); localStorage.removeItem('sg_dpr'); }catch(e){} return 'dpr preference cleared (native '+(R?R.nat:'?')+' after reload)'; } var v=parseFloat(x); if(v>0&&v<=3){ try{ localStorage.setItem('sg_dpr168',String(v)); localStorage.setItem('sg_dpr',String(v)); }catch(e){} if(R){ R.dpr=v; R.apply&&R.apply(); } return 'dpr '+v+' applied (persisted)'; } return report(); } }); },3000);
+    E.cmd('render168',{ h:'frame pixel-size owner + layer state: /render168', admin:true, run:report });
+  }catch(e){ clearInterval(reg); } },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('render168b: '+e); } })();
 </script>
 <script type="text/plain" id="sg-statusbar-js">
 /*SG_STATUSBAR (b164): the centre-UI overhaul. Root cause of the "freaking out": four stackers from different builds (fix142/153/155/159 + sg-pills) all positioning the same pills, and worldpill2 cloning any element whose text says Host. Now ONE glass bar under the mission window (#sg-tc) MIRRORS the text of every centre pill (altitude, shared-field, lap, lantern, drag, anything fixed+centred in the top band) and hides the originals (visibility, so their owners keep updating them and measuring them). The bar never contains the words Host / shared field (it says SUNUCU) so worldpill2 cannot re-clone it. /statusbar reports. 6 Hz refresh, no observers.*/
