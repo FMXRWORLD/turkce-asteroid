@@ -31279,7 +31279,7 @@ var tries = 0, reg = setInterval(function(){ try { var E = window.SGENG; if (!E 
 <script id="sg-build-js">
 /*SG_BUILD: the ONE place the version lives. Bump V and B here; everything else (stamp, /version, Guide, News) reads SGVER which is re-pointed at this object. Earlier bump scripts changed values a locked getter had already captured — hence the stale stamp.*/
 (function(){ 'use strict'; try {
-  var V='0.8.94', B=184, LABEL='Alpha v'+V+' \u00b7 b'+B;
+  var V='0.8.98', B=188, LABEL='Alpha v'+V+' \u00b7 b'+B;
   var BU=window.SGBUILD={ v:V, build:B, label:LABEL, str:function(){ return 'v'+V+' \u00b7 b'+B; }, fixes:0, mode:'' };
   function repoint(){ try{ var S=window.SGVER; if(!S){ window.SGVER={ v:V, build:B, LOG:[], str:function(){ return BU.str(); } }; BU.mode='created'; return; } var ok=true; ['v','build','str'].forEach(function(k){ try{ Object.defineProperty(S,k,{ configurable:true, enumerable:true, get:function(){ return k==='v'?V:k==='build'?B:function(){ return BU.str(); }; }, set:function(){} }); }catch(e){ ok=false; } }); BU.mode=ok?'repointed':'partial'; if(!ok){ try{ var NS={}; Object.keys(S).forEach(function(k){ if(['v','build','str'].indexOf(k)<0) NS[k]=S[k]; }); NS.v=V; NS.build=B; NS.str=function(){ return BU.str(); }; NS.LOG=S.LOG||[]; window.SGVER=NS; BU.mode='replaced'; }catch(e2){} } }catch(e){} }
   repoint();
@@ -38080,8 +38080,8 @@ M.add({ id:'social', admin:0, tr:'Notlar, sohbet, s\u0131n\u0131f', title:'Atlas
   }catch(e){ clearInterval(reg); } },500);
 } catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('comets: '+e); } })();
 </script>
-<script id="sg-cometphys-js" type="text/plain" type="text/plain">
-/*SG_COMETPHYS (b181): comet motion + impacts (screen space, ship at centre; asteroids via a world-to-screen guess around the player). Per kind: boomerang turns back once past the centre; gold dodges sideways once when you get within 0.22; twin splits at 45 % of its flight into two halves fanning \u00b115\u00b0; sleeper drifts dead, wakes (flash, 4x speed, homes a little) within 0.26; ghost never collides with asteroids and only brushes the player (whisper, no shove). Player hit: fire +heat (SGPLASMA) + shove, ice +BUZ (SGBUZ) + heavy shove, word -> letters burst + card, phrase -> TR+EN card, gold -> 'hazine' loot event, twin/boomerang -> shove + spin. Asteroid hit: array of {x,y,r|size} under SG*/SGENG keys matching asteroid|rock|ast|words - visual shatter + 'comet:asteroid' event (fire scorch / ice encase / word tag). Emits comet:hit {kind, tr, en}.*/
+<script id="sg-cometphys-js" type="text/plain">
+/*SG_COMETPHYS (b181): comet motion + impacts (screen space, ship at centre; asteroids via a world-to-screen guess around the player). Per kind: boomerang turns back once past the centre; gold dodges sideways once when you get within 0.22; twin splits at 45 % of its flight into two halves fanning \u00b115\u00b0; sleeper drifts dead, wakes (flash, 4x speed, homes a little) within 0.26; ghost never collides with asteroids and only brushes the player (whisper, no shove). Player hit: fire +heat (SGPLASMA) + shove, ice +BUZ (SGBUZ) + heavy shove, word -> letters burst + card, phrase -> TR+EN card, gold -> 'hazine' loot event, twin/boomerang -> shove + spin. Asteroid hit: array of {x,y,r|size} under SG* / SGENG keys matching asteroid|rock|ast|words - visual shatter + 'comet:asteroid' event (fire scorch / ice encase / word tag). Emits comet:hit {kind, tr, en}.*/
 (function(){ 'use strict'; try {
   var P=window.SGCOMETPHYS={ last:Date.now(), astSrc:'', astN:0, frames:0 };
   function player(){ var C=window.SGECO; return C&&C.player?C.player():null; }
@@ -38274,6 +38274,98 @@ M.add({ id:'social', admin:0, tr:'Notlar, sohbet, s\u0131n\u0131f', title:'Atlas
     E.cmd('rim2', { h:'rim character: /rim2 | kind fire|cradle|city|mountain|none | reset | off | on', admin:true, run:function(a){ var x = Array.isArray(a) ? a : String(a || '').split(/\s+/).filter(Boolean); var S = g('S'); if (x[0] === 'off'){ R.on = false; return 'rim2 off'; } if (x[0] === 'on'){ R.on = true; return 'rim2 on'; } if (x[0] === 'kind' && S && S.sys){ if (x[1] === 'none') delete R.force[S.sys.id]; else R.force[S.sys.id] = x[1]; try { localStorage.setItem('sg_rim2_force', JSON.stringify(R.force)); } catch(e){} R.sys = ''; return S.sys.id + ' -> ' + (x[1] || 'auto'); } if (x[0] === 'reset'){ R.force = {}; try { localStorage.removeItem('sg_rim2_force'); } catch(e){} R.sys = ''; return 'rim2 forces reset'; } return 'rim2 ' + (R.on ? 'on' : 'off') + ' \u00b7 sys ' + R.sys + ' \u00b7 theme ' + theme() + ' \u00b7 kind ' + (R.kind || 'none (rimworld)') + ' \u00b7 kinds ' + Object.keys(R.K).join('/') + ' \u00b7 draws ' + R.draws + (R.err ? ' \u00b7 err ' + R.err : ''); } });
   } catch(e){ clearInterval(reg); } }, 500);
 } catch(e){ (window.SGX = window.SGX || { err:[] }).err.push('rim2: ' + e); } })();
+</script>
+<!-- EM:BEGIN sg-packmap-js -->
+<script id="sg-packmap-js">
+/*SG_PACKMAP (b186): frozen pack map for the split (plan step 1). Classifies every inline <script id="sg-*-js"> by regex rule into packs; unmatched = core. Does NOT touch /release (SGRELEASE stays). Triggers: boot | admin | system:<themeId> | cmd:<name>. /pack [plan|<pack>|core|json|rules|check].*/
+(function(){ 'use strict'; try {
+  var M=window.SGPACKMAP={ v:1 };
+  M.rules=[
+    { name:'themes', trig:'boot', re:/^sg-(theme|themefx|themeprobe|skytint|worldlink|rho2)-js$/ },
+    { name:'plasma', trig:'system:plasma', re:/^sg-plasma/ },
+    { name:'nebula', trig:'system:nebula', re:/^sg-(nebula|nursery)/ },
+    { name:'mahalle', trig:'system:greetings', re:/^sg-(mahalle|traffic|selam|consensus)/ },
+    { name:'ask', trig:'system:ask', re:/^sg-(ask|argo|balloon)/ },
+    { name:'buz', trig:'system:ice', re:/^sg-(buz|ice|jam|thaw)/ },
+    { name:'comets', trig:'boot', re:/^sg-comet/ },
+    { name:'parts', trig:'boot', re:/^sg-(parts|heatshield|radplate|icebreaker)/ },
+    { name:'rim2', trig:'boot', re:/^sg-rim2/ },
+    { name:'eco', trig:'boot', re:/^sg-eco/ },
+    { name:'admin', trig:'admin', re:/^sg-(admin|doctor|dbcheck|integrity|release|schema|qa|migrate|grant)/ },
+    { name:'docs', trig:'boot', re:/^sg-(doc|help|guide|tutorial|manual|lesson)/ },
+    { name:'love', trig:'boot', re:/^sg-(love|ask2|kalp|heart)/ },
+    { name:'econ', trig:'boot', re:/^sg-(econ|wallet|market|shop|trade|loot|coin)/ },
+    { name:'harbor', trig:'boot', re:/^sg-(harbor|harbour|dock|port|pier)/ },
+    { name:'verb', trig:'boot', re:/^sg-verb/ },
+    { name:'race', trig:'boot', re:/^sg-race/ },
+    { name:'duygu', trig:'boot', re:/^sg-duygu/ },
+    { name:'exp1', trig:'boot', re:/^sg-(exp|lab|test)/ }
+  ];
+  M.pin={ 'sg-build-js':'core', 'sg-loader-js':'core', 'sg-packmap-js':'core', 'sg-packbuild-js':'core' };
+  M.scan=function(){ var out={ core:[], retired:[], packs:{}, order:[] }, i=0; M.rules.forEach(function(r){ out.packs[r.name]={ name:r.name, trig:r.trig, ids:[], bytes:0 }; });
+    Array.prototype.forEach.call(document.querySelectorAll('script[id^="sg-"]'),function(s){ var id=s.id, b=(s.textContent||'').length, rec={ id:id, bytes:b, idx:i++ }; out.order.push(rec); if(s.type==='text/plain'){ out.retired.push(rec); return; } var pin=M.pin[id]||(/SGAPI\.run\(/.test(s.textContent||'')?'core':null); if(pin==='core'){ rec.pin=M.pin[id]?'pin':'sgapi.run'; out.core.push(rec); return; } var hit=null; for(var k=0;k<M.rules.length&&!hit;k++) if(M.rules[k].re.test(id)) hit=M.rules[k]; if(hit){ var p=out.packs[hit.name]; p.ids.push(id); p.bytes+=b; } else out.core.push(rec); });
+    out.coreBytes=out.core.reduce(function(a,r){ return a+r.bytes; },0); out.retiredBytes=out.retired.reduce(function(a,r){ return a+r.bytes; },0); return out; };
+  M.kb=function(n){ return (n/1024).toFixed(n>102400?0:1)+'K'; };
+  M.plan=function(){ var sc=M.scan(), L=['PACK PLAN v'+M.v+' \u00b7 '+sc.order.length+' sg-scripts \u00b7 core '+M.kb(sc.coreBytes)+'/'+sc.core.length+' \u00b7 retired (dropped) '+M.kb(sc.retiredBytes)+'/'+sc.retired.length]; M.rules.forEach(function(r){ var p=sc.packs[r.name]; if(p.ids.length) L.push('  '+r.name+' '+M.kb(p.bytes)+'/'+p.ids.length+' @'+r.trig); else L.push('  '+r.name+' EMPTY @'+r.trig); }); L.push('\u2192 /pack <name> lists ids \u00b7 /pack core \u00b7 /pack json freezes'); return L.join('\n'); };
+  M.build=function(){ try{ var m=/\bB=(\d+)/.exec(document.getElementById('sg-build-js').textContent); return m?+m[1]:null; }catch(e){ return null; } };
+  M.json=function(){ var sc=M.scan(), o={ v:M.v, build:M.build(), packs:{} }; M.rules.forEach(function(r){ var p=sc.packs[r.name]; if(p.ids.length) o.packs[r.name]={ trig:r.trig, modules:p.ids, bytes:p.bytes }; }); o.core=sc.core.map(function(r){ return r.id; }); o.retired=sc.retired.map(function(r){ return r.id; }); return JSON.stringify(o); };
+  M.frozen=null; M.freeze=function(){ M.frozen=JSON.parse(M.json()); try{ localStorage.setItem('sg_packmap',JSON.stringify(M.frozen)); }catch(e){} return M.frozen; };
+  try{ var sv=localStorage.getItem('sg_packmap'); if(sv) M.frozen=JSON.parse(sv); }catch(e){}
+  var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('pack',{ h:'/pack [plan|<pack>|core|json|rules|check|freeze] : split pack map', admin:true, run:function(a){ var s=(Array.isArray(a)?a.join(' '):typeof a==='string'?a:(a&&(a.args||a.arg||a.text||a.rest))||'').trim(), w=s.split(/\s+/)[0]||'plan'; var sc=M.scan(); if(w==='plan') return M.plan(); if(w==='json') return M.json(); if(w==='freeze'){ var f=M.freeze(); return 'frozen: '+Object.keys(f.packs).length+' packs, core '+f.core.length+' modules (saved to localStorage sg_packmap)'; } if(w==='rules') return M.rules.map(function(r){ return r.name+' '+String(r.re)+' @'+r.trig; }).join('\n'); if(w==='core') return 'CORE '+M.kb(sc.coreBytes)+'/'+sc.core.length+':\n'+sc.core.map(function(r){ return r.id.replace(/^sg-|-js$/g,'')+' '+M.kb(r.bytes)+(r.pin==='sgapi.run'?'\u2020':''); }).join(' \u00b7 ')+'\n\u2020 = contains SGAPI.run( \u2192 pinned core'; if(w==='check'){ var R=window.SGRELEASE, keys=R?Object.keys(R).join(','):'(none)'; return 'SGRELEASE keys: '+keys+' \u00b7 SGLOADER: '+(window.SGLOADER?window.SGLOADER.mode:'(none)')+' \u00b7 frozen: '+(M.frozen?Object.keys(M.frozen.packs).length+' packs @b'+M.frozen.build:'no'); } var p=sc.packs[w]; if(p) return w.toUpperCase()+' '+M.kb(p.bytes)+'/'+p.ids.length+' @'+p.trig+':\n'+p.ids.map(function(id){ return id.replace(/^sg-|-js$/g,''); }).join(' \u00b7 '); return 'unknown pack: '+w+' \u00b7 '+M.plan(); } });
+  }catch(e){ clearInterval(reg); } },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('packmap: '+e); } })();
+</script>
+<!-- EM:BEGIN sg-loader-js -->
+<script id="sg-loader-js">
+/*SG_LOADER (b187): lazy pack loader (plan step 3). Inert in the monolith (SPLIT_MODE=false; /packbuild flips it to true in the core copy). Split mode: ?mono=1 redirects to index.mono.html (A/B); else fetch manifest.json, load packs by trigger: boot (now, sequential, manifest order) | admin (when role=admin) | system:<id> (SGTHEME.cur.id or S.sys.id matches) | cmd:<name> (stub command loads the pack, then asks to re-run). Injects <script src="packs/<name>.<sha8>.js">, emits E.emit('pack:ready',{name,modules}) per pack and 'pack:boot' once. /loader [status|load <pack>|all|manifest].*/
+(function(){ 'use strict'; try {
+  var SPLIT_MODE=false;
+  var L=window.SGLOADER={ mode:SPLIT_MODE?'split':'mono-inline', man:null, loaded:{}, loading:{}, err:[], log:[], base:'packs/' };
+  if(SPLIT_MODE&&/[?&]mono=1\b/.test(location.search)){ var rest=location.search.replace(/[?&]mono=1\b/,'').replace(/^&/,'?'); location.replace('index.mono.html'+rest+location.hash); return; }
+  L.emit=function(n,d){ try{ var E=window.SGENG; if(E&&E.emit) E.emit(n,d); }catch(e){} };
+  L.load=function(name){ var p=L.man&&L.man.packs[name]; if(!p) return Promise.reject('no pack '+name); if(L.loaded[name]) return Promise.resolve(name); if(L.loading[name]) return L.loading[name];
+    L.loading[name]=new Promise(function(res,rej){ var s=document.createElement('script'); s.src=L.base+p.file; s.async=false; s.setAttribute('data-pack',name); s.onload=function(){ L.loaded[name]=Date.now(); delete L.loading[name]; L.log.push(name+' ok'); L.emit('pack:ready',{ name:name, modules:p.modules }); res(name); }; s.onerror=function(){ delete L.loading[name]; L.err.push(name+': load failed '+s.src); rej(name); }; document.head.appendChild(s); });
+    return L.loading[name]; };
+  L.seq=function(names){ return names.reduce(function(pr,n){ return pr.then(function(){ return L.load(n).catch(function(){}); }); },Promise.resolve()); };
+  L.isAdmin=function(){ try{ var E=window.SGENG, A=window.SGAPI; if(E&&(E.role==='admin'||E.isAdmin===true||(typeof E.isAdmin==='function'&&E.isAdmin()))) return true; if(A&&A.get){ var r=A.get('role'); if(r==='admin'||(r&&r.role==='admin')) return true; } if(window.SGROLE==='admin') return true; if(document.body&&document.body.classList.contains('admin')) return true; }catch(e){} return false; };
+  L.sysId=function(){ var ids=[]; try{ var T=window.SGTHEME; if(T&&T.cur&&T.cur.id) ids.push(String(T.cur.id)); }catch(e){} try{ var S=window.SGAPI&&window.SGAPI.get&&window.SGAPI.get('S'); if(S&&S.sys){ if(S.sys.id!=null) ids.push(String(S.sys.id)); if(S.sys.name) ids.push(String(S.sys.name).toLowerCase()); if(S.sys.theme) ids.push(String(S.sys.theme)); } }catch(e){} return ids; };
+  L.tick=function(){ if(!L.man) return; var adm=L.isAdmin(), ids=L.sysId(); Object.keys(L.man.packs).forEach(function(n){ if(L.loaded[n]||L.loading[n]) return; var t=L.man.packs[n].trig||'boot'; if(t==='admin'&&adm) L.load(n); else if(t.indexOf('system:')===0&&ids.indexOf(t.slice(7))>=0) L.load(n); }); };
+  L.start=function(){ return fetch('manifest.json?t='+Date.now(),{ cache:'no-store' }).then(function(r){ if(!r.ok) throw new Error('manifest '+r.status); return r.json(); }).then(function(m){ L.man=m; if(m.base) L.base=m.base; var boot=Object.keys(m.packs).filter(function(n){ return (m.packs[n].trig||'boot')==='boot'; }); L.log.push('manifest b'+m.build+' \u00b7 '+Object.keys(m.packs).length+' packs \u00b7 boot '+boot.length); return L.seq(boot); }).then(function(){ L.bootDone=Date.now(); L.emit('pack:boot',{ loaded:Object.keys(L.loaded) }); L.tick(); setInterval(L.tick,1000); }).catch(function(e){ L.err.push('start: '+e); }); };
+  if(SPLIT_MODE) L.start();
+  var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg);
+    if(E.on){ ['system:load','theme:change','role','role:change'].forEach(function(ev){ try{ E.on(ev,function(){ setTimeout(L.tick,50); }); }catch(e){} }); }
+    var stubs=function(){ Object.keys(L.man.packs).forEach(function(n){ var t=L.man.packs[n].trig||''; if(t.indexOf('cmd:')!==0) return; var c=t.slice(4); E.cmd(c,{ h:'/'+c+' : loads pack '+n+' first', run:function(){ L.load(n); return 'loading pack '+n+'\u2026 re-run /'+c+' in a moment'; } }); }); };
+    if(L.man) stubs(); else if(SPLIT_MODE){ var w=setInterval(function(){ if(L.man){ clearInterval(w); stubs(); } },500); setTimeout(function(){ clearInterval(w); },30000); }
+    E.cmd('loader',{ h:'/loader [status|load <pack>|all|manifest] : pack loader', run:function(a){ var s=(Array.isArray(a)?a.join(' '):typeof a==='string'?a:(a&&(a.args||a.arg||a.text||a.rest))||'').trim(), w=s.split(/\s+/); if(w[0]==='load'&&w[1]){ L.load(w[1]).catch(function(){}); return 'loading '+w[1]; } if(w[0]==='all'&&L.man){ L.seq(Object.keys(L.man.packs)); return 'loading all packs'; } if(w[0]==='manifest') return L.man?JSON.stringify(L.man).slice(0,1500):'no manifest (mode '+L.mode+')'; var n=L.man?Object.keys(L.man.packs):[]; return 'loader '+L.mode+(L.man?' \u00b7 manifest b'+L.man.build+' \u00b7 '+n.length+' packs':' \u00b7 no manifest')+' \u00b7 loaded '+Object.keys(L.loaded).length+' ['+Object.keys(L.loaded).join(',')+'] \u00b7 pending '+n.filter(function(x){ return !L.loaded[x]; }).map(function(x){ return x+'@'+L.man.packs[x].trig; }).join(',')+' \u00b7 admin '+L.isAdmin()+' \u00b7 sys ['+L.sysId().join(',')+']'+(L.err.length?' \u00b7 ERR '+L.err.join('; '):''); } });
+  }catch(e){ clearInterval(reg); } },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('loader: '+e); } })();
+</script>
+<!-- EM:BEGIN sg-packbuild-js -->
+<script id="sg-packbuild-js">
+/*SG_PACKBUILD (b188): split builder (plan step 2). Reads this page's own source (fetch(location.href); fallback: live DOM), takes the frozen map from /pack freeze (else live /pack json), cuts every pack module + every retired block out of the source => core; concatenates each pack's modules in index order => <name>.<sha8>.js; flips the loader to SPLIT_MODE=true in the core only; writes manifest.json {v,build,at,base,core,mono,packs{trig,modules,bytes,sha256,file}}. /packbuild [dry|go|report]. 'go' downloads index.html (core), index.mono.html (untouched source = ?mono=1 target), manifest.json and one .js per pack -> put the .js files in packs/. Rollback = the old index.html.*/
+(function(){ 'use strict'; try {
+  var PB=window.SGPACKBUILD={ last:null, busy:false };
+  PB.src=function(){ return fetch(location.href,{ cache:'no-store' }).then(function(r){ if(!r.ok) throw 0; return r.text(); }).then(function(t){ return { text:t, from:'fetch' }; }).catch(function(){ return { text:'<!DOCTYPE html>\n'+document.documentElement.outerHTML, from:'DOM (live serialization, may differ from the file)' }; }); };
+  PB.sha=function(t){ try{ return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(b){ return Array.prototype.map.call(new Uint8Array(b),function(x){ return ('0'+x.toString(16)).slice(-2); }).join(''); }); }catch(e){ var h=2166136261; for(var i=0;i<t.length;i++){ h^=t.charCodeAt(i); h=Math.imul(h,16777619)>>>0; } return Promise.resolve('fnv'+h.toString(16)); } };
+  PB.cut=function(src,id){ var re=new RegExp('<script\\b[^>]*\\bid="'+id+'"[^>]*>([\\s\\S]*?)<\\/script>','i'), m=re.exec(src); return m?{ id:id, start:m.index, end:m.index+m[0].length, body:m[1] }:null; };
+  PB.build=function(){ var M=window.SGPACKMAP; if(!M) return Promise.reject('no SGPACKMAP'); var map=M.frozen||JSON.parse(M.json()); PB.busy=true;
+    return PB.src().then(function(S){ var src=S.text, cuts=[], packs={}, miss=[], names=Object.keys(map.packs);
+      names.forEach(function(n){ var p=map.packs[n], parts=[]; p.modules.forEach(function(id){ var c=PB.cut(src,id); if(!c){ miss.push(n+':'+id); return; } cuts.push(c); parts.push('\n/* === '+id+' === */\n'+c.body); }); packs[n]={ trig:p.trig, modules:p.modules, text:parts.join('\n') }; });
+      (map.retired||[]).forEach(function(id){ var c=PB.cut(src,id); if(c) cuts.push(c); });
+      cuts.sort(function(a,b){ return b.start-a.start; }); var core=src; cuts.forEach(function(c){ core=core.slice(0,c.start)+core.slice(c.end); });
+      var needle='var SPLIT_'+'MODE=false;', flipped=core.indexOf(needle)>=0; core=core.replace(needle,'var SPLIT_'+'MODE=true;');
+      var man={ v:map.v, build:map.build, at:new Date().toISOString(), base:'packs/', source:S.from, core:{ file:'index.html', bytes:core.length }, mono:{ file:'index.mono.html', bytes:src.length }, packs:{} }, jobs=[];
+      names.forEach(function(n){ jobs.push(PB.sha(packs[n].text).then(function(h){ man.packs[n]={ trig:packs[n].trig, modules:packs[n].modules, bytes:packs[n].text.length, sha256:h, file:n+'.'+h.slice(0,8)+'.js' }; })); });
+      jobs.push(PB.sha(core).then(function(h){ man.core.sha256=h; })); jobs.push(PB.sha(src).then(function(h){ man.mono.sha256=h; }));
+      return Promise.all(jobs).then(function(){ var R=PB.last={ man:man, core:core, mono:src, packs:packs, miss:miss, flipped:flipped, cuts:cuts.length }; R.report=PB.report(R); PB.busy=false; return R; }); }).catch(function(e){ PB.busy=false; PB.err=String(e); throw e; }); };
+  PB.report=function(R){ var m=R.man, kb=function(n){ return (n/1024).toFixed(n>102400?0:1)+'K'; }, L=['PACKBUILD b'+m.build+' \u00b7 source '+m.source+' \u00b7 cuts '+R.cuts+' \u00b7 loader flipped '+R.flipped,'  core index.html '+kb(m.core.bytes)+' (mono '+kb(m.mono.bytes)+') sha '+m.core.sha256.slice(0,8)]; Object.keys(m.packs).forEach(function(n){ var p=m.packs[n]; L.push('  '+p.file+' '+kb(p.bytes)+'/'+p.modules.length+' @'+p.trig); }); if(R.miss.length) L.push('  MISSING '+R.miss.length+': '+R.miss.join(', ')); L.push(R.flipped?'\u2192 /packbuild go downloads all files':'\u26a0 loader needle not found: core would stay inline-mode'); return L.join('\n'); };
+  PB.dl=function(name,text,type){ var b=new Blob([text],{ type:type||'text/javascript' }), u=URL.createObjectURL(b), a=document.createElement('a'); a.href=u; a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); URL.revokeObjectURL(u); },4000); };
+  PB.go=function(R){ var files=[['index.html',R.core,'text/html'],['index.mono.html',R.mono,'text/html'],['manifest.json',JSON.stringify(R.man,null,1),'application/json']]; Object.keys(R.man.packs).forEach(function(n){ files.push([R.man.packs[n].file,R.packs[n].text,'text/javascript']); }); files.forEach(function(f,i){ setTimeout(function(){ PB.dl(f[0],f[1],f[2]); },i*700); }); return files.length; };
+  var tries=0, reg=setInterval(function(){ try{ var E=window.SGENG; if(!E||!E.cmd){ if(++tries>120) clearInterval(reg); return; } clearInterval(reg);
+    E.cmd('packbuild',{ h:'/packbuild [dry|go|report] : build core + packs + manifest (downloads)', admin:true, run:function(a){ var s=(Array.isArray(a)?a.join(' '):typeof a==='string'?a:(a&&(a.args||a.arg||a.text||a.rest))||'').trim(), w=s.split(/\s+/)[0]||'dry'; if(w==='report') return PB.last?PB.last.report:(PB.err?'build failed: '+PB.err:'no build yet: /packbuild dry'); if(PB.busy) return 'build running\u2026'; if(w==='go'&&PB.last&&!PB.last.miss.length) return 'downloading '+PB.go(PB.last)+' files (allow multiple downloads) \u2192 index.html + index.mono.html + manifest.json at the root, *.js into packs/'; if(w==='go'&&PB.last) return 'refusing: '+PB.last.miss.length+' missing modules, see /packbuild report'; PB.err=null; PB.build().then(function(R){ try{ if(E.print) E.print(R.report); else if(E.say) E.say(R.report); }catch(e){} }).catch(function(){}); return 'building from '+(window.SGPACKMAP&&window.SGPACKMAP.frozen?'frozen map':'live map')+'\u2026 then /packbuild report'+(w==='go'?' and /packbuild go again':''); } });
+  }catch(e){ clearInterval(reg); } },500);
+} catch(e){ (window.SGX=window.SGX||{err:[]}).err.push('packbuild: '+e); } })();
 </script>
 <script id="sg-rim2fire-js">
 /*SG_RIM2FIRE (b183): kind 'fire' - the surface of a star. No decoration, just fire: the whole rim is a continuous flame wall (3 bands, deep red -> orange -> yellow-white, each a jagged polygon of tongues that lick inward and flicker with seeded noise), a heat glow bleeding inward, embers lifting off the wall, and the rim line itself white-hot. Drawn only for the rim segments inside the viewport.*/
